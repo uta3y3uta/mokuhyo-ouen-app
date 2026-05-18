@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>めざせ！もくひょうたっせい</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body data-theme="0">
+<div id="app"></div>
+
+<!-- 進化アニメーション オーバーレイ -->
+<div id="evolveOverlay" class="overlay hidden">
+  <div class="evolve-stage">
+    <div class="evolve-burst"></div>
+    <div class="evolve-rays"></div>
+    <div class="evolve-creature" id="evolveCreature"></div>
+    <div class="evolve-message" id="evolveMessage"></div>
+    <button class="primary-btn" id="evolveClose">つづける</button>
+  </div>
+</div>
+
+<!-- 確認モーダル -->
+<div id="confirmModal" class="overlay hidden">
+  <div class="modal">
+    <div class="modal-body" id="confirmText"></div>
+    <div class="modal-actions">
+      <button class="ghost-btn" id="confirmCancel">キャンセル</button>
+      <button class="primary-btn" id="confirmOk">OK</button>
+    </div>
+  </div>
+</div>
+
+<script src="creatures.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
