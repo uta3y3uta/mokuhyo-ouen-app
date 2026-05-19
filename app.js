@@ -248,6 +248,7 @@ function renderCreate() {
       customUnit: "",
       eggType: 0,
       label: "",
+      inputMode: "choose", // "choose" | "required" | "none"
     };
   }
   switch (draft.step) {
@@ -373,11 +374,37 @@ function renderCreateUnit() {
       <p class="help-text"><ruby>名前<rt>なまえ</rt></ruby>(なくてもOK)</p>
       <div class="select-wrap"><input type="text" id="labelInput" placeholder="れい：かんじドリル" maxlength="20" value="${escapeHtml(draft.label)}"/></div>
     </div>
+    <div class="card">
+      <h2>「できた」の <ruby>入力<rt>にゅうりょく</rt></ruby></h2>
+      <p class="help-text"><ruby>文章<rt>ぶんしょう</rt></ruby>や<ruby>写真<rt>しゃしん</rt></ruby>を <ruby>残<rt>のこ</rt></ruby>す？</p>
+      <div class="input-mode-options">
+        <label class="input-mode-opt ${draft.inputMode==='choose'?'selected':''}" data-mode="choose">
+          <div class="opt-title">えらべる</div>
+          <div class="opt-desc">なくても OK（おすすめ）</div>
+        </label>
+        <label class="input-mode-opt ${draft.inputMode==='required'?'selected':''}" data-mode="required">
+          <div class="opt-title">かならず</div>
+          <div class="opt-desc">かならず <ruby>入<rt>い</rt></ruby>れる</div>
+        </label>
+        <label class="input-mode-opt ${draft.inputMode==='none'?'selected':''}" data-mode="none">
+          <div class="opt-title">なし</div>
+          <div class="opt-desc"><ruby>入力欄<rt>にゅうりょくらん</rt></ruby>を <ruby>出<rt>だ</rt></ruby>さない</div>
+        </label>
+      </div>
+    </div>
     <div class="card row-flex">
       <button class="ghost-btn" id="backBtn" style="flex:1">もどる</button>
       <button class="primary-btn" id="nextBtn" style="flex:2">つぎへ</button>
     </div>`;
   shell("home", html);
+
+  document.querySelectorAll(".input-mode-opt").forEach(el => {
+    el.onclick = () => {
+      draft.inputMode = el.dataset.mode;
+      document.querySelectorAll(".input-mode-opt").forEach(x => x.classList.remove("selected"));
+      el.classList.add("selected");
+    };
+  });
 
   const refresh = () => {
     const sel = document.getElementById("unitSel").value;
@@ -443,12 +470,7 @@ function renderCreateConfirm() {
   const total = digitsToNum(draft.digits);
   const unit = draft.unit === "その他" ? draft.customUnit : draft.unit;
   const days = Math.ceil((new Date(draft.endDate) - new Date(draft.startDate)) / 86400000) + 1;
-  const th = computeThresholds(total);
-  const stagePreview = th.map((v, i) =>
-    `<div style="text-align:center;font-size:11px;color:var(--text-soft)">
-      <div style="width:40px;height:40px;margin:0 auto 2px">${renderCreature(draft.eggType, i+1)}</div>
-      <div>${v}</div>
-    </div>`).join("");
+  const inputModeLabel = {choose:"えらべる", required:"かならず", none:"なし"}[draft.inputMode] || "えらべる";
   const html = `
     <div class="card">
       <h2>5. かくにん</h2>
@@ -456,12 +478,10 @@ function renderCreateConfirm() {
         <ruby>期間<rt>きかん</rt></ruby>：${fmtDate(draft.startDate)}<br>　　　〜 ${fmtDate(draft.endDate)} (${days}日間)<br>
         <ruby>目標<rt>もくひょう</rt></ruby>：<b style="font-size:20px;color:var(--primary-dark)">${total} ${escapeHtml(unit)}</b><br>
         ${draft.label ? `<ruby>名前<rt>なまえ</rt></ruby>：${escapeHtml(draft.label)}<br>` : ""}
-        アバター：${eggLabel(draft.eggType)}
+        アバター：たまご<br>
+        「できた」の<ruby>入力<rt>にゅうりょく</rt></ruby>：${inputModeLabel}
       </p>
-    </div>
-    <div class="card">
-      <h2 style="font-size:14px"><ruby>進化<rt>しんか</rt></ruby>の<ruby>段階<rt>だんかい</rt></ruby></h2>
-      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;">${stagePreview}</div>
+      <p class="help-text" style="margin-top:10px">アバターの<ruby>進化<rt>しんか</rt></ruby>は すすめると わかるよ！</p>
     </div>
     <div class="card row-flex">
       <button class="ghost-btn" id="backBtn" style="flex:1">もどる</button>
@@ -480,6 +500,8 @@ function renderCreateConfirm() {
       eggType: draft.eggType,
       label: draft.label || `${total}${unit}のもくひょう`,
       count: 0,
+      inputMode: draft.inputMode || "choose",
+      history: [],
       createdAt: new Date().toISOString(),
     };
     state.goals.push(newGoal);
@@ -522,9 +544,28 @@ function renderGoalDetail(id) {
     pips += `<div class="pip ${i < stage ? 'on' : ''}"></div>`;
   }
 
+  const isEggStage = ds <= 3;
+  const inputMode = g.inputMode || "choose";
+  const showInput = !isCompleted && (inputMode === "choose" || inputMode === "required");
+  const required = inputMode === "required";
+
+  const inputAreaHtml = showInput ? `
+    <div class="card input-area">
+      <textarea id="logText" class="log-text" placeholder="${required ? 'きょうのきろくを かいてね' : 'きょうのきろく（なくてもOK）'}" maxlength="200" rows="2"></textarea>
+      <div class="log-photo-row">
+        <label class="photo-btn" for="logPhoto">
+          <span class="photo-btn-icon">📷</span>
+          <span class="photo-btn-label">しゃしんを えらぶ</span>
+          <input type="file" id="logPhoto" accept="image/*" hidden>
+        </label>
+        <div id="photoPreview" class="photo-preview"></div>
+      </div>
+    </div>
+  ` : "";
+
   const html = `
     <div class="detail-hero">
-      <div class="avatar-big">${renderCreature(g.eggType, ds)}</div>
+      <div class="avatar-big ${isEggStage ? 'avatar-egg' : ''}">${renderCreature(g.eggType, ds)}</div>
       <div class="count-display">${g.count} <small>/ ${g.target} ${escapeHtml(g.unit)}</small></div>
       <div class="period">${fmtDate(g.startDate)} ～ ${fmtDate(g.endDate)}</div>
       <div class="progress-bar-wrap">
@@ -545,6 +586,8 @@ function renderGoalDetail(id) {
       <button class="add-btn" id="plusBtn">＋1</button>
       <button class="add-btn" id="plus5Btn">＋5</button>
     </div>
+    ${inputAreaHtml}
+    <button class="done-btn" id="doneBtn">できた！</button>
     <div class="card row-flex">
       <button class="ghost-btn" id="backBtn" style="flex:1">ホーム</button>
       <button class="ghost-btn" id="deleteBtn" style="flex:1;color:#c4392c">やめる</button>
@@ -577,18 +620,77 @@ function renderGoalDetail(id) {
         location.hash = "#/home";
       });
     };
+
+    // できたボタン + 入力エリア
+    let photoData = "";
+    const photoInput = document.getElementById("logPhoto");
+    const photoPreview = document.getElementById("photoPreview");
+    if (photoInput && photoPreview) {
+      photoInput.onchange = (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        // リサイズして dataURL に変換 (最大400px幅)
+        const reader = new FileReader();
+        reader.onload = () => {
+          const img = new Image();
+          img.onload = () => {
+            const maxW = 400;
+            const scale = Math.min(1, maxW / img.width);
+            const w = Math.round(img.width * scale);
+            const h = Math.round(img.height * scale);
+            const canvas = document.createElement("canvas");
+            canvas.width = w; canvas.height = h;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0, w, h);
+            photoData = canvas.toDataURL("image/jpeg", 0.7);
+            photoPreview.innerHTML = `<img src="${photoData}" alt="preview"><button class="photo-clear" id="photoClear" type="button" title="けす">×</button>`;
+            const clearBtn = document.getElementById("photoClear");
+            if (clearBtn) clearBtn.onclick = () => {
+              photoData = "";
+              photoPreview.innerHTML = "";
+              photoInput.value = "";
+            };
+          };
+          img.src = reader.result;
+        };
+        reader.readAsDataURL(file);
+      };
+    }
+
+    const doneBtn = document.getElementById("doneBtn");
+    if (doneBtn) {
+      doneBtn.onclick = () => {
+        const textEl = document.getElementById("logText");
+        const text = textEl ? textEl.value.trim() : "";
+        const inputMode = g.inputMode || "choose";
+        if (inputMode === "required" && !text && !photoData) {
+          alert("文章か しゃしんを 入れてね！");
+          return;
+        }
+        addCount(g.id, 1, { text, photo: photoData });
+      };
+    }
   } else {
     document.getElementById("backBtn").onclick = () => location.hash = "#/home";
     document.getElementById("certBtn").onclick = () => showCertificateDialog(g);
   }
 }
 
-function addCount(id, delta) {
+function addCount(id, delta, inputData) {
   const g = state.goals.find(x => x.id === id);
   if (!g) return;
   const oldStage = getStage(g.count, g.target);
   g.count = Math.max(0, Math.min(g.target, g.count + delta));
   const newStage = getStage(g.count, g.target);
+  if (inputData && (inputData.text || inputData.photo)) {
+    g.history = g.history || [];
+    g.history.push({
+      delta,
+      ts: new Date().toISOString(),
+      text: inputData.text || "",
+      photo: inputData.photo || "",
+    });
+  }
   saveState();
 
   if (newStage > oldStage) {
