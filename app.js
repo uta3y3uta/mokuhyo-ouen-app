@@ -380,7 +380,7 @@ function renderCreateUnit() {
       <div class="input-mode-options">
         <label class="input-mode-opt ${draft.inputMode==='choose'?'selected':''}" data-mode="choose">
           <div class="opt-title">えらべる</div>
-          <div class="opt-desc">なくても OK（おすすめ）</div>
+          <div class="opt-desc">なくても OK</div>
         </label>
         <label class="input-mode-opt ${draft.inputMode==='required'?'selected':''}" data-mode="required">
           <div class="opt-title">かならず</div>
@@ -551,7 +551,7 @@ function renderGoalDetail(id) {
 
   const inputAreaHtml = showInput ? `
     <div class="card input-area">
-      <textarea id="logText" class="log-text" placeholder="${required ? 'きょうのきろくを かいてね' : 'きょうのきろく（なくてもOK）'}" maxlength="200" rows="2"></textarea>
+      <textarea id="logText" class="log-text" placeholder="きょうのきろく" maxlength="200" rows="2"></textarea>
       <div class="log-photo-row">
         <label class="photo-btn" for="logPhoto">
           <span class="photo-btn-icon">📷</span>
@@ -609,9 +609,6 @@ function renderGoalDetail(id) {
   document.getElementById("backHome").onclick = () => location.hash = "#/home";
 
   if (!isCompleted) {
-    document.getElementById("plusBtn").onclick = () => addCount(g.id, 1);
-    document.getElementById("plus5Btn").onclick = () => addCount(g.id, 5);
-    document.getElementById("minusBtn").onclick = () => addCount(g.id, -1);
     document.getElementById("backBtn").onclick = () => location.hash = "#/home";
     document.getElementById("deleteBtn").onclick = () => {
       showConfirm("この もくひょうを やめますか？(きろくは けされます)", () => {
@@ -621,7 +618,35 @@ function renderGoalDetail(id) {
       });
     };
 
-    // できたボタン + 入力エリア
+    // -1/+1/+5 は保留 (pendingDelta)、できたで反映
+    let pendingDelta = 0;
+    const minusEl = document.getElementById("minusBtn");
+    const plusEl = document.getElementById("plusBtn");
+    const plus5El = document.getElementById("plus5Btn");
+    const refreshPending = () => {
+      // カウント表示を更新
+      const countEl = document.querySelector(".count-display");
+      if (countEl) {
+        if (pendingDelta === 0) {
+          countEl.innerHTML = `${g.count} <small>/ ${g.target} ${escapeHtml(g.unit)}</small>`;
+        } else {
+          const sign = pendingDelta > 0 ? "+" : "";
+          countEl.innerHTML = `${g.count} <span class="pending-delta">${sign}${pendingDelta}</span> <small>/ ${g.target} ${escapeHtml(g.unit)}</small>`;
+        }
+      }
+      // できたボタンのラベル更新
+      const doneBtn2 = document.getElementById("doneBtn");
+      if (doneBtn2) {
+        if (pendingDelta > 0) doneBtn2.textContent = `＋${pendingDelta} できた！`;
+        else if (pendingDelta < 0) doneBtn2.textContent = `${pendingDelta} できた！`;
+        else doneBtn2.textContent = `できた！`;
+      }
+    };
+    if (plusEl) plusEl.onclick = () => { pendingDelta += 1; refreshPending(); };
+    if (plus5El) plus5El.onclick = () => { pendingDelta += 5; refreshPending(); };
+    if (minusEl) minusEl.onclick = () => { pendingDelta -= 1; refreshPending(); };
+
+    // 写真選択
     let photoData = "";
     const photoInput = document.getElementById("logPhoto");
     const photoPreview = document.getElementById("photoPreview");
@@ -657,6 +682,7 @@ function renderGoalDetail(id) {
       };
     }
 
+    // できたボタン: 保留中の差分 + 入力をまとめて反映
     const doneBtn = document.getElementById("doneBtn");
     if (doneBtn) {
       doneBtn.onclick = () => {
@@ -667,7 +693,11 @@ function renderGoalDetail(id) {
           alert("文章か しゃしんを 入れてね！");
           return;
         }
-        addCount(g.id, 1, { text, photo: photoData });
+        if (pendingDelta === 0 && !text && !photoData) {
+          alert("＋や －の ボタンを おしてから 「できた」を おしてね！");
+          return;
+        }
+        addCount(g.id, pendingDelta, { text, photo: photoData });
       };
     }
   } else {
@@ -761,7 +791,7 @@ function renderCollection() {
     const maxStage = maxStageByEgg[i] || 0;
     if (maxStage === 0) return; // まだ未着手の卵はセクション出さない
     html += `<div class="card collection-section">
-      <h3>${escapeHtml(eggLabel(i))} (さいだい ${maxStage}段階目)</h3>
+      <h3>${escapeHtml(eggLabel(i))}</h3>
       <div class="collection-grid">`;
     for (let s = 1; s <= 10; s++) {
       const unlocked = s <= maxStage + 1; // 卵(1)は常に見える
@@ -921,7 +951,7 @@ function renderSettings() {
     `<option value="${i}" ${i===state.settings.themeColor?'selected':''}>${t.name}</option>`
   ).join("");
   const swatches = THEMES.map((t, i) =>
-    `<span class="theme-swatch" style="background:${t.color}" title="${t.name}"></span>`
+    `<span class="theme-swatch ${i===state.settings.themeColor?'selected':''}" style="background:${t.color}" title="${t.name}" data-i="${i}"></span>`
   ).join("");
   const html = `
     <div class="card">
@@ -949,7 +979,22 @@ function renderSettings() {
     state.settings.themeColor = +e.target.value;
     saveState();
     applyTheme();
+    document.querySelectorAll(".theme-swatch").forEach(x => x.classList.remove("selected"));
+    const sw = document.querySelector(`.theme-swatch[data-i="${e.target.value}"]`);
+    if (sw) sw.classList.add("selected");
   };
+  document.querySelectorAll(".theme-swatch").forEach(s => {
+    s.onclick = () => {
+      const i = +s.dataset.i;
+      state.settings.themeColor = i;
+      saveState();
+      applyTheme();
+      document.querySelectorAll(".theme-swatch").forEach(x => x.classList.remove("selected"));
+      s.classList.add("selected");
+      const sel = document.getElementById("themeSel");
+      if (sel) sel.value = i;
+    };
+  });
   document.getElementById("backBtn").onclick = () => location.hash = "#/home";
   document.getElementById("resetBtn").onclick = () => {
     showConfirm("ぜんぶの きろくが きえます。よろしいですか？", () => {
