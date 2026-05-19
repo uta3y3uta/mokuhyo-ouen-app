@@ -751,9 +751,10 @@ function renderCertificatePage(id) {
   const days = Math.ceil((new Date(g.endDate) - new Date(g.startDate)) / 86400000) + 1;
   const today = new Date();
   const todayStr = `${today.getFullYear()}年${today.getMonth()+1}月${today.getDate()}日`;
-  let avatars = "";
-  for (let s = 1; s <= 10; s++) {
-    avatars += `<div>${renderCreature(g.eggType, s)}</div>`;
+  // 旅 (stage 1-9): 卵から大きくなるグラデーション
+  let journey = "";
+  for (let s = 1; s <= 9; s++) {
+    journey += `<div class="j-cell j-${s}">${renderCreature(g.eggType, s)}<div class="j-num">${s}</div></div>`;
   }
   const isDone = state.completedGoals.includes(g);
 
@@ -770,7 +771,11 @@ function renderCertificatePage(id) {
         <b>${g.target}${escapeHtml(g.unit)}</b> の もくひょうに ${isDone ? "<b>みごと たっせい</b>" : `<b>${g.count}${escapeHtml(g.unit)}</b> まで ちょうせん`} しました。<br>
         その がんばりを ここに たたえます。
       </div>
-      <div class="cert-avatars">${avatars}</div>
+      <div class="cert-hero">
+        <div class="cert-hero-svg">${renderCreature(g.eggType, 10)}</div>
+        <div class="cert-hero-label">さいしゅう しんか！</div>
+      </div>
+      <div class="cert-journey">${journey}</div>
       <div class="cert-date">${todayStr}</div>
     </div>
   `;
