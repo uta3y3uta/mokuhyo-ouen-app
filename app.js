@@ -751,11 +751,16 @@ function renderCertificatePage(id) {
   const days = Math.ceil((new Date(g.endDate) - new Date(g.startDate)) / 86400000) + 1;
   const today = new Date();
   const todayStr = `${today.getFullYear()}年${today.getMonth()+1}月${today.getDate()}日`;
-  // 旅 (stage 1-9): 卵から大きくなるグラデーション
-  let journey = "";
-  for (let s = 1; s <= 9; s++) {
-    journey += `<div class="j-cell j-${s}">${renderCreature(g.eggType, s)}<div class="j-num">${s}</div></div>`;
+  // 進化 (stage 1-5 上段, 6-9 + 拡大した10 下段)
+  let row1 = "";
+  for (let s = 1; s <= 5; s++) {
+    row1 += `<div class="j-cell j-${s}">${renderCreature(g.eggType, s)}<div class="j-num">${s}</div></div>`;
   }
+  let row2 = "";
+  for (let s = 6; s <= 9; s++) {
+    row2 += `<div class="j-cell j-${s}">${renderCreature(g.eggType, s)}<div class="j-num">${s}</div></div>`;
+  }
+  row2 += `<div class="j-cell j-final">${renderCreature(g.eggType, 10)}<div class="j-num j-num-final">10</div></div>`;
   const isDone = state.completedGoals.includes(g);
 
   document.body.innerHTML = `
@@ -771,10 +776,10 @@ function renderCertificatePage(id) {
         <b>${g.target}${escapeHtml(g.unit)}</b> の もくひょうに ${isDone ? "<b>みごと たっせい</b>" : `<b>${g.count}${escapeHtml(g.unit)}</b> まで ちょうせん`} しました。<br>
         その がんばりを ここに たたえます。
       </div>
-      <div class="cert-hero">
-        <div class="cert-hero-svg">${renderCreature(g.eggType, 10)}</div>
+      <div class="cert-journey">
+        <div class="j-row j-row-top">${row1}</div>
+        <div class="j-row j-row-bottom">${row2}</div>
       </div>
-      <div class="cert-journey">${journey}</div>
       <div class="cert-date">${todayStr}</div>
     </div>
   `;

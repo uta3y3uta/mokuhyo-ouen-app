@@ -516,54 +516,56 @@ button { font-family: inherit; cursor: pointer; }
   overflow: hidden;
 }
 .cert-page h1 {
-  text-align: center; font-size: 48px; color: #b8860b;
-  letter-spacing: 0.3em; margin: 0 0 8mm;
+  text-align: center; font-size: 60px; color: #b8860b;
+  letter-spacing: 0.35em; margin: 0 0 6mm;
   font-weight: 900;
 }
 .cert-page .cert-deco {
-  position: absolute; font-size: 52px; opacity: 0.6;
+  position: absolute; font-size: 56px; opacity: 0.6;
 }
 .cert-page .cert-deco.tl { top: 8mm; left: 10mm; }
 .cert-page .cert-deco.tr { top: 8mm; right: 10mm; }
 .cert-page .cert-name {
-  font-size: 36px; color: #b8860b; text-align: center;
-  margin: 2mm 0 6mm; font-weight: 900;
+  font-size: 44px; color: #b8860b; text-align: center;
+  margin: 2mm 0 5mm; font-weight: 900;
   letter-spacing: 0.05em;
 }
 .cert-page .cert-body {
-  font-size: 19px; line-height: 2.2; text-align: center;
-  margin: 4mm 6mm 6mm;
-  padding: 6mm 4mm;
+  font-size: 21px; line-height: 1.95; text-align: center;
+  margin: 3mm 6mm 4mm;
+  padding: 5mm 4mm;
   background: #fffaf0;
   border-radius: 8px;
-  border-top: 2px solid #d4a017;
-  border-bottom: 2px solid #d4a017;
+  border-top: 3px solid #d4a017;
+  border-bottom: 3px solid #d4a017;
   color: #4a3a1a;
-  font-weight: 500;
+  font-weight: 600;
 }
 .cert-page .cert-body b {
-  font-size: 26px; color: #b8860b; font-weight: 900;
+  font-size: 28px; color: #b8860b; font-weight: 900;
 }
-/* 最終進化形 (1/3に縮小) */
-.cert-page .cert-hero {
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  margin: 4mm 0 2mm;
-}
-.cert-page .cert-hero-svg {
-  width: 38mm; height: 38mm;
-}
-.cert-page .cert-hero-svg svg { width: 100%; height: 100%; }
-/* 進化の道のり (大切にする・卵だけ小さく) */
+/* 進化の道のり (2段組) */
 .cert-page .cert-journey {
-  display: grid;
-  grid-template-columns: repeat(9, 1fr);
-  align-items: end;
+  display: flex; flex-direction: column;
   gap: 2mm;
-  padding: 5mm 4mm;
+  padding: 3mm 4mm;
   background: #fff9e6;
   border-radius: 10px;
-  margin-top: 3mm;
+  margin-top: 2mm;
+}
+.cert-page .cert-journey .j-row {
+  display: grid;
+  align-items: end;
+  gap: 2mm;
+}
+/* 上段: 1〜5 等分 */
+.cert-page .cert-journey .j-row-top {
+  grid-template-columns: repeat(5, 1fr);
+}
+/* 下段: 6〜9 + 拡大した10 (10は2列ぶんの幅) */
+.cert-page .cert-journey .j-row-bottom {
+  grid-template-columns: 1fr 1fr 1fr 1fr 2fr;
+  align-items: center;
 }
 .cert-page .cert-journey .j-cell {
   display: flex; flex-direction: column;
@@ -572,21 +574,32 @@ button { font-family: inherit; cursor: pointer; }
 }
 .cert-page .cert-journey .j-cell svg { width: 100%; height: auto; display: block; }
 .cert-page .cert-journey .j-num {
-  font-size: 10px; color: #b8860b; font-weight: 800; margin-top: 1mm;
+  font-size: 12px; color: #b8860b; font-weight: 800; margin-top: 1mm;
 }
-/* 卵 (1-3) は小さく、孵化後 (4+) は大切にしっかり表示 */
+/* 卵 (1-3) は小さく、孵化後 (4-9) はしっかり表示 */
 .cert-page .cert-journey .j-1 { width: 55%; }
-.cert-page .cert-journey .j-2 { width: 60%; }
-.cert-page .cert-journey .j-3 { width: 68%; }
-.cert-page .cert-journey .j-4 { width: 92%; }
-.cert-page .cert-journey .j-5 { width: 94%; }
-.cert-page .cert-journey .j-6 { width: 96%; }
-.cert-page .cert-journey .j-7 { width: 98%; }
-.cert-page .cert-journey .j-8 { width: 100%; }
+.cert-page .cert-journey .j-2 { width: 62%; }
+.cert-page .cert-journey .j-3 { width: 72%; }
+.cert-page .cert-journey .j-4 { width: 90%; }
+.cert-page .cert-journey .j-5 { width: 95%; }
+.cert-page .cert-journey .j-6 { width: 95%; }
+.cert-page .cert-journey .j-7 { width: 96%; }
+.cert-page .cert-journey .j-8 { width: 98%; }
 .cert-page .cert-journey .j-9 { width: 100%; }
+/* 最終進化形 (10) は大きく */
+.cert-page .cert-journey .j-final {
+  width: 100%;
+  background: radial-gradient(circle, #fff4c0 0%, #fff9e6 70%);
+  border-radius: 12px;
+  padding: 2mm;
+}
+.cert-page .cert-journey .j-num-final {
+  font-size: 16px;
+  color: #b8860b;
+}
 .cert-page .cert-date {
-  text-align: right; font-size: 15px; margin-top: auto; padding-top: 4mm;
-  color: #555; font-weight: 600;
+  text-align: right; font-size: 18px; margin-top: auto; padding-top: 4mm;
+  color: #555; font-weight: 700;
 }
 .cert-print {
   position: fixed; top: 14px; right: 14px;
