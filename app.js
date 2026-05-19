@@ -773,7 +773,6 @@ function renderCertificatePage(id) {
       </div>
       <div class="cert-hero">
         <div class="cert-hero-svg">${renderCreature(g.eggType, 10)}</div>
-        <div class="cert-hero-label">さいしゅう しんか！</div>
       </div>
       <div class="cert-journey">${journey}</div>
       <div class="cert-date">${todayStr}</div>
