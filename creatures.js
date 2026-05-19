@@ -204,9 +204,10 @@ function smile(cx, cy, w) {
 
 function aura(stage, color) {
   if (stage < 8) return "";
-  const r = stage === 10 ? 50 : stage === 9 ? 44 : 38;
+  // viewBox 0..100 内に収まるように cy=50 で円が切れないようにする
+  const r = stage === 10 ? 48 : stage === 9 ? 42 : 36;
   const opacity = stage === 10 ? 0.55 : 0.35;
-  return `<circle cx="50" cy="56" r="${r}" fill="${color}" opacity="${opacity}"/>`;
+  return `<circle cx="50" cy="50" r="${r}" fill="${color}" opacity="${opacity}"/>`;
 }
 
 function sparkles(stage) {

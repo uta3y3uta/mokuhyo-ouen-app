@@ -489,16 +489,36 @@ button { font-family: inherit; cursor: pointer; }
 
 /* ========== コレクション ========== */
 .collection-grid {
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px;
+}
+.collection-rows {
+  display: flex; flex-direction: column; gap: 6px;
+}
+.collection-row {
+  display: grid; gap: 6px;
+  align-items: center;
+}
+.collection-row-top {
+  grid-template-columns: repeat(5, 1fr);
+}
+/* 下段: 6-9 等分 + 拡大した 10 */
+.collection-row-bottom {
+  grid-template-columns: 1fr 1fr 1fr 1fr 1.4fr;
 }
 .collection-cell {
   aspect-ratio: 1;
   background: white;
   border-radius: 14px;
-  padding: 6px;
+  padding: 4px;
   display: flex; align-items: center; justify-content: center;
   border: 2px solid var(--border);
   position: relative;
+  overflow: hidden;
+}
+.collection-cell svg { width: 100%; height: 100%; display: block; }
+.collection-cell.collection-cell-final {
+  background: linear-gradient(135deg, #fff9e6, white);
+  border-color: #ffd166;
 }
 .collection-cell.locked { background: rgba(0,0,0,0.05); }
 .collection-cell.locked svg { opacity: 0.18; filter: grayscale(1); }

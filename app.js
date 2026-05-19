@@ -790,17 +790,34 @@ function renderCollection() {
   EGG_TYPES.forEach((e, i) => {
     const maxStage = maxStageByEgg[i] || 0;
     if (maxStage === 0) return; // まだ未着手の卵はセクション出さない
-    html += `<div class="card collection-section">
-      <h3>${escapeHtml(eggLabel(i))}</h3>
-      <div class="collection-grid">`;
-    for (let s = 1; s <= 10; s++) {
-      const unlocked = s <= maxStage + 1; // 卵(1)は常に見える
-      html += `<div class="collection-cell ${unlocked?'':'locked'}">
-        ${unlocked ? renderCreature(i, s) : renderCreature(i, s)}
+    let row1 = "";
+    for (let s = 1; s <= 5; s++) {
+      const unlocked = s <= maxStage + 1;
+      row1 += `<div class="collection-cell ${unlocked?'':'locked'}">
+        ${renderCreature(i, s)}
         <div class="stage-label">${s}</div>
       </div>`;
     }
-    html += `</div></div>`;
+    let row2 = "";
+    for (let s = 6; s <= 9; s++) {
+      const unlocked = s <= maxStage + 1;
+      row2 += `<div class="collection-cell ${unlocked?'':'locked'}">
+        ${renderCreature(i, s)}
+        <div class="stage-label">${s}</div>
+      </div>`;
+    }
+    const finalUnlocked = 10 <= maxStage + 1;
+    row2 += `<div class="collection-cell collection-cell-final ${finalUnlocked?'':'locked'}">
+      ${renderCreature(i, 10)}
+      <div class="stage-label">10</div>
+    </div>`;
+    html += `<div class="card collection-section">
+      <h3>${escapeHtml(eggLabel(i))}</h3>
+      <div class="collection-rows">
+        <div class="collection-row collection-row-top">${row1}</div>
+        <div class="collection-row collection-row-bottom">${row2}</div>
+      </div>
+    </div>`;
   });
 
   // 未着手の卵 = ?
