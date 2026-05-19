@@ -240,553 +240,1351 @@ function shellFragments(e, pid, stage) {
 
 /* -------- 1. ドラゴン -------- */
 function drawDragon(e, stage, pid) {
-  const bodyR = 16 + (stage-4) * 2.4;
-  const eyeR = 4.5 + (stage-4)*0.3;
-  const hornH = (stage-3) * 3.2;
-  const wingW = stage < 6 ? 0 : (stage-5)*5.5;
-  const tailL = (stage-3)*3;
-
-  const body = `<ellipse cx="50" cy="60" rx="${bodyR}" ry="${bodyR*1.05}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.6"/>`;
-  const belly = stage >= 5 ? `<ellipse cx="50" cy="64" rx="${bodyR*0.55}" ry="${bodyR*0.75}" fill="${e.s}" opacity="0.85"/>` : "";
-  const tail = stage >= 5 ? `<path d="M${50+bodyR-3} ${60+bodyR*0.4} Q${65+tailL} ${72+tailL*0.5} ${78+tailL} ${82+tailL*0.3} L${82+tailL} ${78+tailL*0.3} Q${72+tailL} ${68} ${50+bodyR-3} ${56}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.4"/>
-    ${stage >= 8 ? `<path d="M${78+tailL} ${80+tailL*0.3} L${85+tailL} ${74+tailL*0.3} L${82+tailL} ${85+tailL*0.4} Z" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.8"/>` : ""}` : "";
-  const horns = `<path d="M44 ${42-hornH*0.2} L${40-hornH*0.4} ${36-hornH} L46 ${40-hornH*0.3} Z" fill="${e.a}" stroke="#3a2a2a" stroke-width="1.2"/>
-                 <path d="M56 ${42-hornH*0.2} L${60+hornH*0.4} ${36-hornH} L54 ${40-hornH*0.3} Z" fill="${e.a}" stroke="#3a2a2a" stroke-width="1.2"/>`;
-  const wings = stage >= 6 ? `<path d="M${50-bodyR*0.7} 56 Q${50-bodyR-wingW} 28 ${50-bodyR*0.3} 44 Q${50-bodyR-wingW*0.5} 50 ${50-bodyR*0.6} 62 Z" fill="${e.s}" stroke="#3a2a2a" stroke-width="1.2"/>
-    <path d="M${50+bodyR*0.7} 56 Q${50+bodyR+wingW} 28 ${50+bodyR*0.3} 44 Q${50+bodyR+wingW*0.5} 50 ${50+bodyR*0.6} 62 Z" fill="${e.s}" stroke="#3a2a2a" stroke-width="1.2"/>` : "";
-  const spikes = stage >= 7 ? `<path d="M50 ${60-bodyR} L48 ${52-bodyR*1.15} L52 ${52-bodyR*1.15} Z M44 ${56-bodyR*1.1} L42 ${48-bodyR*1.12} L46 ${48-bodyR*1.1} Z M56 ${56-bodyR*1.1} L54 ${48-bodyR*1.1} L58 ${48-bodyR*1.12} Z" fill="${e.a}" stroke="#3a2a2a" stroke-width="1"/>` : "";
-  const nose = `<ellipse cx="50" cy="62" rx="1.6" ry="1.1" fill="#222"/>`;
-  const mouth = smile(50, 66, 4);
-  const fangs = stage >= 8 ? `<path d="M48 66 L47 69 L48.5 69 Z M52 66 L53 69 L51.5 69 Z" fill="white" stroke="#3a2a2a" stroke-width="0.4"/>` : "";
-  return tail + body + belly + spikes + wings + horns + blush(50-bodyR*0.55, 50+bodyR*0.55, 62, 4, e.a) + bigEyes(50-bodyR*0.4, 50+bodyR*0.4, 54, eyeR) + nose + mouth + fangs;
+  if (stage <= 6) {
+    // ベビー: 翼なし・角の芽だけの丸い赤ちゃんドラゴン
+    const t = stage - 4;
+    const r = 12 + t*1.5;
+    return `
+      <path d="M${50+r*0.9} ${64+r*0.3} Q${50+r+4} ${64+r*0.6} ${50+r+7} ${64+r*0.1}" stroke="${e.p}" stroke-width="${3+t*0.3}" fill="none" stroke-linecap="round"/>
+      <ellipse cx="50" cy="64" rx="${r}" ry="${r*1.05}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.6"/>
+      <ellipse cx="50" cy="68" rx="${r*0.55}" ry="${r*0.65}" fill="${e.s}" opacity="0.85"/>
+      <ellipse cx="${50-r*0.3}" cy="${64-r*0.9}" rx="2" ry="${2+t*0.3}" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.8"/>
+      <ellipse cx="${50+r*0.3}" cy="${64-r*0.9}" rx="2" ry="${2+t*0.3}" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.8"/>
+      ${blush(50-r*0.55, 50+r*0.55, 66, 3, e.a)}
+      ${bigEyes(50-r*0.35, 50+r*0.35, 62, 3.5+t*0.2)}
+      <ellipse cx="50" cy="66" rx="1.2" ry="0.8" fill="#222"/>
+      ${smile(50, 69, 2.5)}
+    `;
+  }
+  if (stage <= 9) {
+    // 進化形: 翼が生え、角が立派になった本格ドラゴン
+    const t = stage - 7;
+    const r = 17 + t*1.5;
+    const wingW = 9 + t*3;
+    return `
+      <path d="M${50+r-3} ${60+r*0.4} Q${65+t*3} ${74+t*1.5} ${80+t*3} ${82+t}" stroke="url(#${pid})" stroke-width="${5+t*0.6}" fill="none" stroke-linecap="round"/>
+      <path d="M${80+t*3} ${82+t} L${88+t*3} ${78+t} L${83+t*3} ${90+t} Z" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.8"/>
+      <path d="M${50-r*0.7} 56 Q${50-r-wingW} ${34-t*2} ${50-r*0.3} 44 Q${50-r-wingW*0.5} 50 ${50-r*0.6} 62 Z" fill="${e.s}" stroke="#3a2a2a" stroke-width="1.2"/>
+      <path d="M${50+r*0.7} 56 Q${50+r+wingW} ${34-t*2} ${50+r*0.3} 44 Q${50+r+wingW*0.5} 50 ${50+r*0.6} 62 Z" fill="${e.s}" stroke="#3a2a2a" stroke-width="1.2"/>
+      <ellipse cx="50" cy="60" rx="${r}" ry="${r*1.05}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.6"/>
+      <ellipse cx="50" cy="64" rx="${r*0.55}" ry="${r*0.75}" fill="${e.s}" opacity="0.85"/>
+      <path d="M50 ${60-r} L48 ${52-r*1.15} L52 ${52-r*1.15} Z M44 ${56-r*1.1} L42 ${48-r*1.12} L46 ${48-r*1.1} Z M56 ${56-r*1.1} L54 ${48-r*1.1} L58 ${48-r*1.12} Z" fill="${e.a}" stroke="#3a2a2a" stroke-width="1"/>
+      <path d="M44 38 L${36-t*1.5} ${28-t*1.5} L48 36 Z" fill="${e.a}" stroke="#3a2a2a" stroke-width="1.2"/>
+      <path d="M56 38 L${64+t*1.5} ${28-t*1.5} L52 36 Z" fill="${e.a}" stroke="#3a2a2a" stroke-width="1.2"/>
+      ${blush(50-r*0.55, 50+r*0.55, 62, 4, e.a)}
+      ${bigEyes(50-r*0.35, 50+r*0.35, 54, 4.5+t*0.2)}
+      <ellipse cx="50" cy="62" rx="1.6" ry="1.1" fill="#222"/>
+      ${smile(50, 66, 4)}
+      ${t >= 1 ? `<path d="M48 66 L47 69 L48.5 69 Z M52 66 L53 69 L51.5 69 Z" fill="white" stroke="#3a2a2a" stroke-width="0.4"/>` : ""}
+    `;
+  }
+  // 最終形: 王冠付き巨大ドラゴン
+  const r = 22, wingW = 26;
+  return `
+    <path d="M${50+r-3} ${60+r*0.4} Q86 78 96 86 L96 82 Q88 74 ${50+r-3} 56" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.5"/>
+    <path d="M94 84 L100 76 L97 92 Z" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.8"/>
+    <path d="M${50-r*0.7} 56 Q${50-r-wingW} 16 ${50-r*0.3} 40 Q${50-r-wingW*0.6} 48 ${50-r*0.6} 64 Z" fill="${e.s}" stroke="#3a2a2a" stroke-width="1.4"/>
+    <path d="M${50-r*0.5} 48 Q${50-r-wingW*0.7} 28 ${50-r*0.3} 40" stroke="#3a2a2a" stroke-width="0.8" fill="none"/>
+    <path d="M${50+r*0.7} 56 Q${50+r+wingW} 16 ${50+r*0.3} 40 Q${50+r+wingW*0.6} 48 ${50+r*0.6} 64 Z" fill="${e.s}" stroke="#3a2a2a" stroke-width="1.4"/>
+    <path d="M${50+r*0.5} 48 Q${50+r+wingW*0.7} 28 ${50+r*0.3} 40" stroke="#3a2a2a" stroke-width="0.8" fill="none"/>
+    <ellipse cx="50" cy="60" rx="${r}" ry="${r*1.05}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.8"/>
+    <ellipse cx="50" cy="64" rx="${r*0.6}" ry="${r*0.8}" fill="${e.s}" opacity="0.9"/>
+    <path d="M${50-r*0.4} 66 L${50+r*0.4} 66 M${50-r*0.5} 72 L${50+r*0.5} 72" stroke="${e.a}" stroke-width="1" opacity="0.6"/>
+    <path d="M50 ${60-r} L48 ${46-r*1.2} L52 ${46-r*1.2} Z M44 ${56-r*1.1} L42 ${42-r*1.18} L46 ${42-r*1.15} Z M56 ${56-r*1.1} L54 ${42-r*1.15} L58 ${42-r*1.18} Z" fill="${e.a}" stroke="#3a2a2a" stroke-width="1"/>
+    <path d="M40 36 L30 18 L46 32 Z" fill="${e.a}" stroke="#3a2a2a" stroke-width="1.2"/>
+    <path d="M60 36 L70 18 L54 32 Z" fill="${e.a}" stroke="#3a2a2a" stroke-width="1.2"/>
+    <path d="M40 30 L44 22 L46 28 L50 18 L54 28 L56 22 L60 30 L60 33 L40 33 Z" fill="#fff200" stroke="#ff9900" stroke-width="0.8"/>
+    <circle cx="50" cy="26" r="2" fill="#ff4d4d"/>
+    <circle cx="44" cy="28" r="1.2" fill="#33d9ff"/>
+    <circle cx="56" cy="28" r="1.2" fill="#33d9ff"/>
+    ${bigEyes(50-r*0.35, 50+r*0.35, 54, 5)}
+    <ellipse cx="50" cy="62" rx="2" ry="1.3" fill="#222"/>
+    ${smile(50, 67, 5)}
+    <path d="M47 66 L46 71 L48 71 Z M53 66 L54 71 L52 71 Z" fill="white" stroke="#3a2a2a" stroke-width="0.5"/>
+  `;
 }
 
 /* -------- 2. フィッシュ (魚) -------- */
 function drawFish(e, stage, pid) {
-  const bodyR = 16 + (stage-4) * 2.5;
-  const eyeR = 4 + (stage-4)*0.3;
-  const body = `<ellipse cx="50" cy="58" rx="${bodyR*1.3}" ry="${bodyR}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.6"/>`;
-  const belly = stage >= 5 ? `<ellipse cx="50" cy="62" rx="${bodyR*0.9}" ry="${bodyR*0.55}" fill="${e.s}" opacity="0.85"/>` : "";
-  const tailFin = `<path d="M${50-bodyR*1.3} 58 L${50-bodyR*1.8-stage*0.5} ${48-stage*0.4} L${50-bodyR*1.4} 58 L${50-bodyR*1.8-stage*0.5} ${68+stage*0.4} Z" fill="${e.s}" stroke="#3a2a2a" stroke-width="1.2"/>`;
-  const dorsal = stage >= 5 ? `<path d="M${50-bodyR*0.3} ${58-bodyR*0.9} L50 ${58-bodyR-stage*0.6} L${50+bodyR*0.3} ${58-bodyR*0.9} Z" fill="${e.s}" stroke="#3a2a2a" stroke-width="1.2"/>` : "";
-  const sideFin = stage >= 6 ? `<path d="M${50-bodyR*0.2} ${58+bodyR*0.6} Q${50-bodyR*0.6} ${58+bodyR+6} ${50+bodyR*0.1} ${58+bodyR*0.75}" fill="${e.s}" stroke="#3a2a2a" stroke-width="1"/>` : "";
-  const gill = stage >= 7 ? `<path d="M${50-bodyR*0.5} 56 Q${50-bodyR*0.45} 62 ${50-bodyR*0.5} 64" stroke="#3a2a2a" stroke-width="0.8" fill="none"/>` : "";
-  const mouth = stage >= 6 ? `<ellipse cx="${50+bodyR*0.85}" cy="60" rx="3" ry="2" fill="#a83258" stroke="#222" stroke-width="0.8"/>` : "";
-  const bubbles = stage >= 9 ? `<circle cx="${50+bodyR*1.3}" cy="48" r="2" fill="${e.s}" stroke="#3a2a2a" stroke-width="0.5"/>
-    <circle cx="${50+bodyR*1.4}" cy="42" r="1.5" fill="${e.s}" stroke="#3a2a2a" stroke-width="0.4"/>` : "";
-  return tailFin + body + belly + dorsal + sideFin + gill + blush(50-bodyR*0.55, 50+bodyR*0.35, 60, 3, e.a) + bigEyes(50-bodyR*0.5, 50+bodyR*0.1, 54, eyeR) + mouth + bubbles;
+  if (stage <= 6) {
+    // ベビー: オタマジャクシ
+    const t = stage - 4;
+    const r = 13 + t*1.5;
+    return `
+      <path d="M${50-r} 58 Q${50-r-7-t} ${52-t} ${50-r-10-t*1.4} ${56-t*0.5} Q${50-r-7-t} ${66+t} ${50-r-2} 58 Z" fill="${e.s}" stroke="#3a2a2a" stroke-width="1.2"/>
+      <ellipse cx="50" cy="58" rx="${r}" ry="${r*0.95}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.6"/>
+      <ellipse cx="50" cy="62" rx="${r*0.6}" ry="${r*0.55}" fill="${e.s}" opacity="0.85"/>
+      ${blush(50-r*0.5, 50+r*0.5, 60, 3, e.a)}
+      ${bigEyes(50-r*0.3, 50+r*0.3, 56, 3.5+t*0.2)}
+      <ellipse cx="${50+r*0.7}" cy="60" rx="2" ry="1.2" fill="#a83258" stroke="#222" stroke-width="0.5"/>
+    `;
+  }
+  if (stage <= 9) {
+    // 進化形: 立派なヒレを持つ魚
+    const t = stage - 7;
+    const r = 17 + t*1.5;
+    return `
+      <path d="M${50-r*1.3} 58 L${50-r*1.8-t*0.6} ${48-t*0.5} L${50-r*1.4} 58 L${50-r*1.8-t*0.6} ${68+t*0.5} Z" fill="${e.s}" stroke="#3a2a2a" stroke-width="1.2"/>
+      <ellipse cx="50" cy="58" rx="${r*1.3}" ry="${r}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.6"/>
+      <ellipse cx="50" cy="62" rx="${r*0.9}" ry="${r*0.55}" fill="${e.s}" opacity="0.85"/>
+      <path d="M${50-r*0.3} ${58-r*0.9} L50 ${58-r-t*0.8} L${50+r*0.3} ${58-r*0.9} Z" fill="${e.s}" stroke="#3a2a2a" stroke-width="1.2"/>
+      <path d="M${50-r*0.2} ${58+r*0.6} Q${50-r*0.6} ${58+r+6} ${50+r*0.1} ${58+r*0.75}" fill="${e.s}" stroke="#3a2a2a" stroke-width="1"/>
+      <path d="M${50-r*0.5} 56 Q${50-r*0.45} 62 ${50-r*0.5} 64" stroke="#3a2a2a" stroke-width="0.8" fill="none"/>
+      ${blush(50-r*0.55, 50+r*0.35, 60, 3, e.a)}
+      ${bigEyes(50-r*0.5, 50+r*0.1, 54, 4.5+t*0.2)}
+      <ellipse cx="${50+r*0.85}" cy="60" rx="3" ry="2" fill="#a83258" stroke="#222" stroke-width="0.8"/>
+    `;
+  }
+  // 最終形: 海王様 (王冠+流れる尾)
+  const r = 20;
+  return `
+    <path d="M${50-r*1.3} 58 Q${50-r*2.2} 32 ${50-r*2} 52 Q${50-r*1.6} 58 ${50-r*2} 64 Q${50-r*2.2} 84 ${50-r*1.3} 58 Z" fill="${e.s}" stroke="#3a2a2a" stroke-width="1.4"/>
+    <path d="M${50-r*1.5} 42 Q${50-r*1.8} 36 ${50-r*1.6} 50" stroke="${e.a}" stroke-width="1" fill="none"/>
+    <path d="M${50-r*1.5} 74 Q${50-r*1.8} 80 ${50-r*1.6} 66" stroke="${e.a}" stroke-width="1" fill="none"/>
+    <ellipse cx="50" cy="58" rx="${r*1.35}" ry="${r}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.8"/>
+    <ellipse cx="50" cy="62" rx="${r*0.95}" ry="${r*0.6}" fill="${e.s}" opacity="0.9"/>
+    <path d="M${50-r*0.4} ${58-r*0.95} L${50-r*0.2} ${58-r-10} L${50} ${58-r*0.9} L${50+r*0.2} ${58-r-10} L${50+r*0.4} ${58-r*0.95} L${50+r*0.3} ${58-r-7} L${50-r*0.3} ${58-r-7} Z" fill="${e.s}" stroke="#3a2a2a" stroke-width="1.2"/>
+    <path d="M${50-r*0.3} ${58+r*0.65} Q${50-r*0.7} ${58+r+10} ${50+r*0.05} ${58+r*0.85} Q${50-r*0.5} ${58+r+4} ${50-r*0.1} ${58+r*0.7}" fill="${e.s}" stroke="#3a2a2a" stroke-width="1.2"/>
+    <path d="M${50-r*0.55} 56 Q${50-r*0.5} 62 ${50-r*0.55} 64 M${50-r*0.4} 56 Q${50-r*0.35} 62 ${50-r*0.4} 64" stroke="#3a2a2a" stroke-width="0.8" fill="none"/>
+    <path d="M44 ${58-r*1.1} L46 ${58-r*1.4} L48 ${58-r*1.15} L50 ${58-r*1.5} L52 ${58-r*1.15} L54 ${58-r*1.4} L56 ${58-r*1.1} L56 ${58-r*0.95} L44 ${58-r*0.95} Z" fill="#fff200" stroke="#ff9900" stroke-width="0.8"/>
+    <circle cx="50" cy="${58-r*1.25}" r="1.8" fill="#ff4d4d"/>
+    <circle cx="46" cy="${58-r*1.15}" r="1" fill="#33d9ff"/>
+    <circle cx="54" cy="${58-r*1.15}" r="1" fill="#33d9ff"/>
+    ${blush(50-r*0.55, 50+r*0.35, 60, 3.5, e.a)}
+    ${bigEyes(50-r*0.5, 50+r*0.1, 54, 5)}
+    <ellipse cx="${50+r*0.85}" cy="60" rx="3.5" ry="2.3" fill="#a83258" stroke="#222" stroke-width="0.8"/>
+    <circle cx="${50+r*1.3}" cy="46" r="2.5" fill="${e.s}" stroke="#3a2a2a" stroke-width="0.5"/>
+    <circle cx="${50+r*1.45}" cy="38" r="1.8" fill="${e.s}" stroke="#3a2a2a" stroke-width="0.4"/>
+  `;
 }
 
 /* -------- 3. バタフライ (虫→蝶) -------- */
 function drawBug(e, stage, pid) {
-  const t = stage - 4;
-  const bodyL = 22 + t*2;
-  const bodyY = 50;
-  const wingR = 8 + t*3.2;
-  const antH = 6 + t*1.5;
-
-  // 触角
-  const antennae = `<path d="M46 ${bodyY-bodyL*0.4} Q${42-t} ${bodyY-bodyL*0.4-antH} ${38-t} ${bodyY-bodyL*0.4-antH*1.4}" stroke="#3a2a2a" stroke-width="1.4" fill="none" stroke-linecap="round"/>
-    <path d="M54 ${bodyY-bodyL*0.4} Q${58+t} ${bodyY-bodyL*0.4-antH} ${62+t} ${bodyY-bodyL*0.4-antH*1.4}" stroke="#3a2a2a" stroke-width="1.4" fill="none" stroke-linecap="round"/>
-    <circle cx="${38-t}" cy="${bodyY-bodyL*0.4-antH*1.4}" r="1.8" fill="${e.a}"/>
-    <circle cx="${62+t}" cy="${bodyY-bodyL*0.4-antH*1.4}" r="1.8" fill="${e.a}"/>`;
-  // 体（縦長楕円）
-  const body = `<ellipse cx="50" cy="${bodyY+5}" rx="6" ry="${bodyL*0.55}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.4"/>`;
-  // 体の節
-  const segs = stage >= 5 ? `<path d="M44 ${bodyY-2} L56 ${bodyY-2} M44 ${bodyY+8} L56 ${bodyY+8} M44 ${bodyY+18} L56 ${bodyY+18}" stroke="#3a2a2a" stroke-width="0.6" opacity="0.6"/>` : "";
-  // 翼（上下4枚）
-  const upperWing = stage >= 5 ? `
-    <path d="M44 ${bodyY-2} Q${44-wingR*1.4} ${bodyY-wingR*1.6} ${44-wingR*0.6} ${bodyY+wingR*0.3} Q${44-wingR*0.2} ${bodyY-2} 44 ${bodyY-2} Z" fill="${e.s}" stroke="#3a2a2a" stroke-width="1.2"/>
-    <path d="M56 ${bodyY-2} Q${56+wingR*1.4} ${bodyY-wingR*1.6} ${56+wingR*0.6} ${bodyY+wingR*0.3} Q${56+wingR*0.2} ${bodyY-2} 56 ${bodyY-2} Z" fill="${e.s}" stroke="#3a2a2a" stroke-width="1.2"/>` : "";
-  const lowerWing = stage >= 6 ? `
-    <path d="M44 ${bodyY+14} Q${44-wingR*1.2} ${bodyY+wingR*1.4} ${44-wingR*0.4} ${bodyY+wingR*1.7} Q${44-wingR*0.1} ${bodyY+14} 44 ${bodyY+14} Z" fill="${e.s}" stroke="#3a2a2a" stroke-width="1.2"/>
-    <path d="M56 ${bodyY+14} Q${56+wingR*1.2} ${bodyY+wingR*1.4} ${56+wingR*0.4} ${bodyY+wingR*1.7} Q${56+wingR*0.1} ${bodyY+14} 56 ${bodyY+14} Z" fill="${e.s}" stroke="#3a2a2a" stroke-width="1.2"/>` : "";
-  // 翼の模様（玉）
-  const wingPat = stage >= 7 ? `
-    <circle cx="${44-wingR*0.7}" cy="${bodyY-wingR*0.4}" r="${1.6+t*0.2}" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.6"/>
-    <circle cx="${56+wingR*0.7}" cy="${bodyY-wingR*0.4}" r="${1.6+t*0.2}" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.6"/>
-    <circle cx="${44-wingR*0.6}" cy="${bodyY+wingR*1.1}" r="${1.4+t*0.15}" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.5"/>
-    <circle cx="${56+wingR*0.6}" cy="${bodyY+wingR*1.1}" r="${1.4+t*0.15}" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.5"/>` : "";
-  // 顔
-  const face = bigEyes(46, 54, bodyY-bodyL*0.18, 3.2+t*0.2) + smile(50, bodyY-bodyL*0.05, 2.5);
-  return antennae + upperWing + lowerWing + body + segs + wingPat + face;
+  if (stage <= 6) {
+    // ベビー: いも虫（複数の節）
+    const t = stage - 4;
+    const n = 3 + t;
+    let segs = "";
+    for (let i = 0; i < n; i++) {
+      const cx = 50 + (i - (n-1)/2) * 11;
+      segs += `<circle cx="${cx}" cy="62" r="${8+t*0.4}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.4"/>`;
+    }
+    const head = 50 + ((n-1)/2) * 11;
+    return segs + `
+      <path d="M${head-2} ${62-8} Q${head-4} ${56-t} ${head-5} ${52-t}" stroke="#3a2a2a" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+      <path d="M${head+2} ${62-8} Q${head+4} ${56-t} ${head+5} ${52-t}" stroke="#3a2a2a" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+      <circle cx="${head-5}" cy="${52-t}" r="1.2" fill="${e.a}"/>
+      <circle cx="${head+5}" cy="${52-t}" r="1.2" fill="${e.a}"/>
+      ${bigEyes(head-3, head+3, 60, 2.5+t*0.15)}
+      ${smile(head, 64, 2)}
+    `;
+  }
+  if (stage <= 9) {
+    // 進化形: サナギ（つながった繭、顔がのぞく）
+    const t = stage - 7;
+    return `
+      <path d="M50 22 L50 ${30+t}" stroke="#3a2a2a" stroke-width="1.2"/>
+      <ellipse cx="50" cy="${60+t*0.5}" rx="${15+t}" ry="${22+t*1.2}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.6"/>
+      <path d="M${50-15-t+2} ${50+t*0.5} Q50 ${52+t*0.5} ${50+15+t-2} ${50+t*0.5} M${50-15-t+2} ${62+t*0.5} Q50 ${64+t*0.5} ${50+15+t-2} ${62+t*0.5} M${50-15-t+2} ${72+t*0.5} Q50 ${74+t*0.5} ${50+15+t-2} ${72+t*0.5}" stroke="#3a2a2a" stroke-width="0.7" fill="none" opacity="0.6"/>
+      <ellipse cx="50" cy="${56+t*0.5}" rx="9" ry="6" fill="${e.s}" opacity="0.7"/>
+      ${bigEyes(46, 54, 56+t*0.5, 3+t*0.2)}
+      ${smile(50, 60+t*0.5, 2.5)}
+      ${t >= 2 ? `<path d="M${50-12} ${42-t} L${50-15} ${36-t} L${50-9} ${39-t} Z" fill="${e.s}" stroke="#3a2a2a" stroke-width="0.8" opacity="0.7"/>
+              <path d="M${50+12} ${42-t} L${50+15} ${36-t} L${50+9} ${39-t} Z" fill="${e.s}" stroke="#3a2a2a" stroke-width="0.8" opacity="0.7"/>` : ""}
+    `;
+  }
+  // 最終形: 大きな羽根を広げた蝶
+  const wingR = 18;
+  return `
+    <path d="M46 36 Q40 24 32 18" stroke="#3a2a2a" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+    <path d="M54 36 Q60 24 68 18" stroke="#3a2a2a" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+    <circle cx="32" cy="18" r="2.5" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.6"/>
+    <circle cx="68" cy="18" r="2.5" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.6"/>
+    <path d="M44 48 Q${44-wingR*1.6} ${48-wingR*1.8} ${44-wingR} ${48+wingR*0.4} Q${44-wingR*0.2} ${48-2} 44 48 Z" fill="${e.s}" stroke="#3a2a2a" stroke-width="1.4"/>
+    <path d="M56 48 Q${56+wingR*1.6} ${48-wingR*1.8} ${56+wingR} ${48+wingR*0.4} Q${56+wingR*0.2} ${48-2} 56 48 Z" fill="${e.s}" stroke="#3a2a2a" stroke-width="1.4"/>
+    <path d="M44 62 Q${44-wingR*1.4} ${62+wingR*1.5} ${44-wingR*0.6} ${62+wingR*1.7} Q${44-wingR*0.1} ${62+2} 44 62 Z" fill="${e.s}" stroke="#3a2a2a" stroke-width="1.4"/>
+    <path d="M56 62 Q${56+wingR*1.4} ${62+wingR*1.5} ${56+wingR*0.6} ${62+wingR*1.7} Q${56+wingR*0.1} ${62+2} 56 62 Z" fill="${e.s}" stroke="#3a2a2a" stroke-width="1.4"/>
+    <circle cx="${44-wingR}" cy="50" r="3.5" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.6"/>
+    <circle cx="${56+wingR}" cy="50" r="3.5" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.6"/>
+    <circle cx="${44-wingR*0.9}" cy="74" r="2.8" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.5"/>
+    <circle cx="${56+wingR*0.9}" cy="74" r="2.8" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.5"/>
+    <circle cx="${44-wingR*1.2}" cy="44" r="1.5" fill="${e.p}"/>
+    <circle cx="${56+wingR*1.2}" cy="44" r="1.5" fill="${e.p}"/>
+    <ellipse cx="50" cy="56" rx="6" ry="20" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.4"/>
+    <path d="M44 48 Q50 50 56 48 M44 58 Q50 60 56 58 M44 68 Q50 70 56 68" stroke="#3a2a2a" stroke-width="0.6" fill="none" opacity="0.6"/>
+    ${bigEyes(46, 54, 44, 3.5)}
+    ${smile(50, 48, 2.5)}
+  `;
 }
 
 /* -------- 4. ユニコーン -------- */
 function drawUnicorn(e, stage, pid) {
-  const bodyR = 17 + (stage-4)*2.3;
-  const eyeR = 4 + (stage-4)*0.3;
-  const hornH = 6 + (stage-4)*2.2;
-  // 体（丸い胴体）
-  const body = `<ellipse cx="50" cy="62" rx="${bodyR}" ry="${bodyR*0.95}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.6"/>`;
-  const belly = stage >= 5 ? `<ellipse cx="50" cy="66" rx="${bodyR*0.55}" ry="${bodyR*0.7}" fill="${e.s}" opacity="0.85"/>` : "";
-  // 耳（馬の耳）
-  const ears = `<path d="M${50-bodyR*0.35} ${62-bodyR*0.85} L${50-bodyR*0.45} ${62-bodyR-6} L${50-bodyR*0.1} ${62-bodyR*0.7} Z" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.2"/>
-    <path d="M${50+bodyR*0.35} ${62-bodyR*0.85} L${50+bodyR*0.45} ${62-bodyR-6} L${50+bodyR*0.1} ${62-bodyR*0.7} Z" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.2"/>`;
-  // 角（らせん）
-  const horn = `<path d="M50 ${62-bodyR*0.95} L${48} ${62-bodyR-hornH} L${52} ${62-bodyR-hornH+1} Z" fill="${e.a}" stroke="#3a2a2a" stroke-width="1.2"/>
-    ${stage >= 6 ? `<path d="M${49} ${62-bodyR-hornH*0.3} L${51} ${62-bodyR-hornH*0.5} M${49} ${62-bodyR-hornH*0.5} L${51} ${62-bodyR-hornH*0.7}" stroke="#3a2a2a" stroke-width="0.8" fill="none"/>` : ""}`;
-  // たてがみ
-  const mane = stage >= 6 ? `<path d="M${50-bodyR*0.7} ${62-bodyR*0.6} Q${50-bodyR-4} ${62-bodyR*0.4} ${50-bodyR-2} ${62+bodyR*0.2} Q${50-bodyR-6} ${62+bodyR*0.5} ${50-bodyR-2} ${62+bodyR*0.7}" fill="${e.a}" stroke="#3a2a2a" stroke-width="1.2"/>` : "";
-  // しっぽ
-  const tail = stage >= 7 ? `<path d="M${50+bodyR*0.85} 62 Q${50+bodyR+10} ${55-stage*0.4} ${50+bodyR+8} ${68+stage*0.3} Q${50+bodyR+14} ${72+stage*0.4} ${50+bodyR+10} ${78+stage*0.4}" fill="${e.a}" stroke="#3a2a2a" stroke-width="1.2"/>` : "";
-  // 鼻
-  const nose = `<ellipse cx="50" cy="68" rx="2" ry="1.4" fill="#222"/>`;
-  // 足
-  const legs = stage >= 6 ? `<rect x="${50-bodyR*0.55}" y="${62+bodyR*0.7}" width="4.5" height="${8+stage*0.5}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1"/>
-    <rect x="${50+bodyR*0.55-4.5}" y="${62+bodyR*0.7}" width="4.5" height="${8+stage*0.5}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1"/>` : "";
-  return tail + legs + body + belly + ears + mane + horn + blush(50-bodyR*0.55, 50+bodyR*0.55, 64, 3.5, e.a) + bigEyes(50-bodyR*0.32, 50+bodyR*0.32, 58, eyeR) + nose + smile(50, 71, 3);
+  if (stage <= 6) {
+    // ベビー: 子馬（まだ角なし）
+    const t = stage - 4;
+    const r = 13 + t*1.5;
+    return `
+      <ellipse cx="50" cy="64" rx="${r}" ry="${r*0.95}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.6"/>
+      <ellipse cx="50" cy="68" rx="${r*0.55}" ry="${r*0.65}" fill="${e.s}" opacity="0.85"/>
+      <path d="M${50-r*0.35} ${64-r*0.85} L${50-r*0.45} ${64-r-3} L${50-r*0.1} ${64-r*0.7} Z" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.2"/>
+      <path d="M${50+r*0.35} ${64-r*0.85} L${50+r*0.45} ${64-r-3} L${50+r*0.1} ${64-r*0.7} Z" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.2"/>
+      ${t >= 1 ? `<circle cx="50" cy="${64-r*0.95}" r="1.5" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.5"/>` : ""}
+      ${blush(50-r*0.55, 50+r*0.55, 66, 3, e.a)}
+      ${bigEyes(50-r*0.3, 50+r*0.3, 62, 3.5+t*0.2)}
+      <ellipse cx="50" cy="68" rx="1.5" ry="1" fill="#222"/>
+      ${smile(50, 71, 2.5)}
+    `;
+  }
+  if (stage <= 9) {
+    // 進化形: 立派な角とたてがみのユニコーン
+    const t = stage - 7;
+    const r = 17 + t*1.5;
+    const hornH = 14 + t*3;
+    return `
+      <path d="M${50+r*0.85} 62 Q${50+r+10} ${55-t} ${50+r+8} ${68+t} Q${50+r+14} ${72+t} ${50+r+10} ${78+t}" fill="${e.a}" stroke="#3a2a2a" stroke-width="1.2"/>
+      <rect x="${50-r*0.55}" y="${62+r*0.7}" width="5" height="${10+t}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1"/>
+      <rect x="${50+r*0.55-5}" y="${62+r*0.7}" width="5" height="${10+t}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1"/>
+      <ellipse cx="50" cy="62" rx="${r}" ry="${r*0.95}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.6"/>
+      <ellipse cx="50" cy="66" rx="${r*0.55}" ry="${r*0.7}" fill="${e.s}" opacity="0.85"/>
+      <path d="M${50-r*0.35} ${62-r*0.85} L${50-r*0.45} ${62-r-5} L${50-r*0.1} ${62-r*0.7} Z" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.2"/>
+      <path d="M${50+r*0.35} ${62-r*0.85} L${50+r*0.45} ${62-r-5} L${50+r*0.1} ${62-r*0.7} Z" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.2"/>
+      <path d="M${50-r*0.7} ${62-r*0.6} Q${50-r-4} ${62-r*0.4} ${50-r-2} ${62+r*0.2} Q${50-r-6} ${62+r*0.5} ${50-r-2} ${62+r*0.7}" fill="${e.a}" stroke="#3a2a2a" stroke-width="1.2"/>
+      <path d="M50 ${62-r*0.95} L48 ${62-r-hornH} L52 ${62-r-hornH+1} Z" fill="${e.a}" stroke="#3a2a2a" stroke-width="1.2"/>
+      <path d="M49 ${62-r-hornH*0.3} L51 ${62-r-hornH*0.5} M49 ${62-r-hornH*0.5} L51 ${62-r-hornH*0.7}" stroke="#3a2a2a" stroke-width="0.8" fill="none"/>
+      ${blush(50-r*0.55, 50+r*0.55, 64, 3.5, e.a)}
+      ${bigEyes(50-r*0.32, 50+r*0.32, 58, 4.5+t*0.2)}
+      <ellipse cx="50" cy="68" rx="2" ry="1.4" fill="#222"/>
+      ${smile(50, 71, 3)}
+    `;
+  }
+  // 最終形: アリコーン（翼+角+王冠）
+  const r = 19;
+  return `
+    <path d="M${50+r*0.85} 62 Q${50+r+12} 48 ${50+r+10} 64 Q${50+r+18} 70 ${50+r+14} 82" fill="${e.a}" stroke="#3a2a2a" stroke-width="1.2"/>
+    <rect x="${50-r*0.55}" y="${62+r*0.7}" width="5.5" height="14" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1"/>
+    <rect x="${50+r*0.55-5.5}" y="${62+r*0.7}" width="5.5" height="14" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1"/>
+    <path d="M${50-r*0.7} 58 Q${50-r-18} 30 ${50-r*0.3} 44 Q${50-r-10} 50 ${50-r*0.6} 62 Z" fill="${e.s}" stroke="#3a2a2a" stroke-width="1.4"/>
+    <path d="M${50+r*0.7} 58 Q${50+r+18} 30 ${50+r*0.3} 44 Q${50+r+10} 50 ${50+r*0.6} 62 Z" fill="${e.s}" stroke="#3a2a2a" stroke-width="1.4"/>
+    <path d="M${50-r*0.5} 50 Q${50-r-14} 38 ${50-r*0.3} 44" stroke="#3a2a2a" stroke-width="0.7" fill="none"/>
+    <path d="M${50+r*0.5} 50 Q${50+r+14} 38 ${50+r*0.3} 44" stroke="#3a2a2a" stroke-width="0.7" fill="none"/>
+    <ellipse cx="50" cy="62" rx="${r}" ry="${r*0.95}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.8"/>
+    <ellipse cx="50" cy="66" rx="${r*0.6}" ry="${r*0.75}" fill="${e.s}" opacity="0.9"/>
+    <path d="M${50-r*0.35} ${62-r*0.85} L${50-r*0.45} ${62-r-7} L${50-r*0.1} ${62-r*0.7} Z" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.2"/>
+    <path d="M${50+r*0.35} ${62-r*0.85} L${50+r*0.45} ${62-r-7} L${50+r*0.1} ${62-r*0.7} Z" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.2"/>
+    <path d="M${50-r*0.7} ${62-r*0.6} Q${50-r-5} ${62-r*0.4} ${50-r-3} ${62+r*0.2} Q${50-r-7} ${62+r*0.5} ${50-r-3} ${62+r*0.7}" fill="${e.a}" stroke="#3a2a2a" stroke-width="1.2"/>
+    <path d="M${50-r*0.45} ${62-r*0.6} Q${50-r+1} ${62-r*0.3} ${50-r+3} ${62+r*0.3}" fill="#ff6b9d" opacity="0.6" stroke="#3a2a2a" stroke-width="0.6"/>
+    <path d="M50 ${62-r*0.95} L48 ${62-r-22} L52 ${62-r-22+1} Z" fill="${e.a}" stroke="#3a2a2a" stroke-width="1.2"/>
+    <path d="M49 ${62-r-6} L51 ${62-r-10} M49 ${62-r-10} L51 ${62-r-14} M49 ${62-r-14} L51 ${62-r-18}" stroke="#3a2a2a" stroke-width="0.8" fill="none"/>
+    <path d="M${50-6} ${62-r*0.95-1} L${50-4} ${62-r*0.95-5} L${50-2} ${62-r*0.95-2} L50 ${62-r*0.95-7} L${50+2} ${62-r*0.95-2} L${50+4} ${62-r*0.95-5} L${50+6} ${62-r*0.95-1} Z" fill="#fff200" stroke="#ff9900" stroke-width="0.7"/>
+    <circle cx="50" cy="${62-r*0.95-3.5}" r="1.5" fill="#ff4d4d"/>
+    ${blush(50-r*0.55, 50+r*0.55, 64, 3.5, e.a)}
+    ${bigEyes(50-r*0.32, 50+r*0.32, 58, 5)}
+    <ellipse cx="50" cy="68" rx="2" ry="1.4" fill="#222"/>
+    ${smile(50, 71, 3)}
+  `;
 }
 
 /* -------- 5. キャット (猫) -------- */
 function drawCat(e, stage, pid) {
-  const bodyR = 18 + (stage-4)*2.2;
-  const eyeR = 4.5 + (stage-4)*0.3;
-  const earH = 6 + (stage-4)*1.5;
-  const body = `<ellipse cx="50" cy="62" rx="${bodyR}" ry="${bodyR*1.02}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.6"/>`;
-  const belly = stage >= 5 ? `<ellipse cx="50" cy="66" rx="${bodyR*0.6}" ry="${bodyR*0.7}" fill="${e.s}" opacity="0.85"/>` : "";
-  // 三角耳
-  const ears = `<path d="M${50-bodyR*0.55} ${62-bodyR*0.75} L${50-bodyR*0.85} ${62-bodyR-earH} L${50-bodyR*0.15} ${62-bodyR*0.55} Z" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.2"/>
-    <path d="M${50+bodyR*0.55} ${62-bodyR*0.75} L${50+bodyR*0.85} ${62-bodyR-earH} L${50+bodyR*0.15} ${62-bodyR*0.55} Z" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.2"/>
-    <path d="M${50-bodyR*0.55} ${62-bodyR*0.7} L${50-bodyR*0.75} ${62-bodyR-earH*0.65} L${50-bodyR*0.3} ${62-bodyR*0.6} Z" fill="${e.a}" opacity="0.7"/>
-    <path d="M${50+bodyR*0.55} ${62-bodyR*0.7} L${50+bodyR*0.75} ${62-bodyR-earH*0.65} L${50+bodyR*0.3} ${62-bodyR*0.6} Z" fill="${e.a}" opacity="0.7"/>`;
-  // ヒゲ
-  const whiskers = stage >= 6 ? `<path d="M${50-bodyR*0.7} 64 L${50-bodyR-3} 62 M${50-bodyR*0.7} 66 L${50-bodyR-3} 67 M${50+bodyR*0.7} 64 L${50+bodyR+3} 62 M${50+bodyR*0.7} 66 L${50+bodyR+3} 67" stroke="#3a2a2a" stroke-width="0.8" fill="none" stroke-linecap="round"/>` : "";
-  // 三角の鼻と口
-  const nose = `<path d="M48 64 L52 64 L50 67 Z" fill="#ff8fbf" stroke="#3a2a2a" stroke-width="0.6"/>`;
-  const mouth = `<path d="M50 67 L50 69 M50 69 Q47 70 46 68 M50 69 Q53 70 54 68" stroke="#3a2a2a" stroke-width="1" fill="none" stroke-linecap="round"/>`;
-  // しっぽ
-  const tail = stage >= 6 ? `<path d="M${50+bodyR*0.8} ${62+bodyR*0.2} Q${50+bodyR+10} ${52-stage*0.5} ${50+bodyR+12} ${42-stage*0.5} Q${50+bodyR+8} ${38-stage*0.4} ${50+bodyR+5} ${42-stage*0.3}" stroke="url(#${pid})" stroke-width="${5+stage*0.3}" fill="none" stroke-linecap="round"/>` : "";
-  // 前足
-  const paws = stage >= 7 ? `<ellipse cx="${50-bodyR*0.5}" cy="${62+bodyR*0.9}" rx="5" ry="3.5" fill="${e.s}" stroke="#3a2a2a" stroke-width="1"/>
-    <ellipse cx="${50+bodyR*0.5}" cy="${62+bodyR*0.9}" rx="5" ry="3.5" fill="${e.s}" stroke="#3a2a2a" stroke-width="1"/>` : "";
-  return tail + body + belly + paws + ears + whiskers + blush(50-bodyR*0.55, 50+bodyR*0.55, 64, 3.5, e.a) + bigEyes(50-bodyR*0.4, 50+bodyR*0.4, 58, eyeR) + nose + mouth;
+  if (stage <= 6) {
+    // ベビー: 子猫（眠そうな目、耳小さい）
+    const t = stage - 4;
+    const r = 14 + t*1.8;
+    return `
+      <ellipse cx="50" cy="64" rx="${r}" ry="${r*1.02}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.6"/>
+      <ellipse cx="50" cy="68" rx="${r*0.6}" ry="${r*0.65}" fill="${e.s}" opacity="0.85"/>
+      <path d="M${50-r*0.5} ${64-r*0.7} L${50-r*0.7} ${64-r-3} L${50-r*0.15} ${64-r*0.5} Z" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.2"/>
+      <path d="M${50+r*0.5} ${64-r*0.7} L${50+r*0.7} ${64-r-3} L${50+r*0.15} ${64-r*0.5} Z" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.2"/>
+      ${blush(50-r*0.55, 50+r*0.55, 66, 3, e.a)}
+      <path d="M${50-r*0.4} 63 Q${50-r*0.3} 65 ${50-r*0.2} 63 M${50+r*0.2} 63 Q${50+r*0.3} 65 ${50+r*0.4} 63" stroke="#222" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      <path d="M48 66 L52 66 L50 68 Z" fill="#ff8fbf" stroke="#3a2a2a" stroke-width="0.5"/>
+      ${smile(50, 70, 2.2)}
+    `;
+  }
+  if (stage <= 9) {
+    // 進化形: 全身猫（ヒゲ、しっぽ、肉球）
+    const t = stage - 7;
+    const r = 18 + t*1.6;
+    return `
+      <path d="M${50+r*0.8} ${62+r*0.2} Q${50+r+10} ${52-t} ${50+r+12} ${42-t} Q${50+r+8} ${38-t} ${50+r+5} ${42-t}" stroke="url(#${pid})" stroke-width="${5+t*0.3}" fill="none" stroke-linecap="round"/>
+      <ellipse cx="50" cy="62" rx="${r}" ry="${r*1.02}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.6"/>
+      <ellipse cx="50" cy="66" rx="${r*0.6}" ry="${r*0.7}" fill="${e.s}" opacity="0.85"/>
+      <path d="M${50-r*0.55} ${62-r*0.75} L${50-r*0.85} ${62-r-10} L${50-r*0.15} ${62-r*0.55} Z" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.2"/>
+      <path d="M${50+r*0.55} ${62-r*0.75} L${50+r*0.85} ${62-r-10} L${50+r*0.15} ${62-r*0.55} Z" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.2"/>
+      <path d="M${50-r*0.55} ${62-r*0.7} L${50-r*0.75} ${62-r-7} L${50-r*0.3} ${62-r*0.6} Z" fill="${e.a}" opacity="0.7"/>
+      <path d="M${50+r*0.55} ${62-r*0.7} L${50+r*0.75} ${62-r-7} L${50+r*0.3} ${62-r*0.6} Z" fill="${e.a}" opacity="0.7"/>
+      <path d="M${50-r*0.7} 64 L${50-r-3} 62 M${50-r*0.7} 66 L${50-r-3} 67 M${50+r*0.7} 64 L${50+r+3} 62 M${50+r*0.7} 66 L${50+r+3} 67" stroke="#3a2a2a" stroke-width="0.8" fill="none" stroke-linecap="round"/>
+      <ellipse cx="${50-r*0.5}" cy="${62+r*0.9}" rx="5" ry="3.5" fill="${e.s}" stroke="#3a2a2a" stroke-width="1"/>
+      <ellipse cx="${50+r*0.5}" cy="${62+r*0.9}" rx="5" ry="3.5" fill="${e.s}" stroke="#3a2a2a" stroke-width="1"/>
+      ${blush(50-r*0.55, 50+r*0.55, 64, 3.5, e.a)}
+      ${bigEyes(50-r*0.4, 50+r*0.4, 58, 4.5+t*0.2)}
+      <path d="M48 64 L52 64 L50 67 Z" fill="#ff8fbf" stroke="#3a2a2a" stroke-width="0.6"/>
+      <path d="M50 67 L50 69 M50 69 Q47 70 46 68 M50 69 Q53 70 54 68" stroke="#3a2a2a" stroke-width="1" fill="none" stroke-linecap="round"/>
+    `;
+  }
+  // 最終形: 魔法猫（2本のしっぽ、リボン、星の印）
+  const r = 20;
+  return `
+    <path d="M${50+r*0.85} ${62+r*0.1} Q${50+r+14} ${48} ${50+r+18} ${36} Q${50+r+10} ${30} ${50+r+5} ${36}" stroke="url(#${pid})" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <path d="M${50+r*0.85} ${62+r*0.3} Q${50+r+10} ${72} ${50+r+14} ${82} Q${50+r+18} ${88} ${50+r+12} ${88}" stroke="url(#${pid})" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <path d="M${50+r+18} 36 Q${50+r+20} 30 ${50+r+22} 32" stroke="${e.a}" stroke-width="1.4" fill="none"/>
+    <path d="M${50+r+14} 82 Q${50+r+16} 88 ${50+r+18} 86" stroke="${e.a}" stroke-width="1.4" fill="none"/>
+    <ellipse cx="50" cy="62" rx="${r}" ry="${r*1.02}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.8"/>
+    <ellipse cx="50" cy="66" rx="${r*0.6}" ry="${r*0.75}" fill="${e.s}" opacity="0.9"/>
+    <path d="M${50-r*0.55} ${62-r*0.75} L${50-r*0.85} ${62-r-12} L${50-r*0.15} ${62-r*0.55} Z" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.2"/>
+    <path d="M${50+r*0.55} ${62-r*0.75} L${50+r*0.85} ${62-r-12} L${50+r*0.15} ${62-r*0.55} Z" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.2"/>
+    <path d="M${50-r*0.55} ${62-r*0.7} L${50-r*0.75} ${62-r-9} L${50-r*0.3} ${62-r*0.6} Z" fill="${e.a}"/>
+    <path d="M${50+r*0.55} ${62-r*0.7} L${50+r*0.75} ${62-r-9} L${50+r*0.3} ${62-r*0.6} Z" fill="${e.a}"/>
+    <path d="M${50-r*0.7} 64 L${50-r-4} 62 M${50-r*0.7} 66 L${50-r-4} 67 M${50+r*0.7} 64 L${50+r+4} 62 M${50+r*0.7} 66 L${50+r+4} 67" stroke="#3a2a2a" stroke-width="0.8" fill="none" stroke-linecap="round"/>
+    <ellipse cx="${50-r*0.5}" cy="${62+r*0.9}" rx="5.5" ry="4" fill="${e.s}" stroke="#3a2a2a" stroke-width="1"/>
+    <ellipse cx="${50+r*0.5}" cy="${62+r*0.9}" rx="5.5" ry="4" fill="${e.s}" stroke="#3a2a2a" stroke-width="1"/>
+    <path d="M${50-r*0.6} ${62-r-6} L${50-r*0.6+5} ${62-r-2} L${50-r*0.6-5} ${62-r-2} L${50-r*0.6} ${62-r-6} Z" fill="#ff4d80" stroke="#3a2a2a" stroke-width="0.7"/>
+    <path d="M48 ${62-r*0.3} L49.5 ${62-r*0.1} L51.5 ${62-r*0.4} L50.5 ${62-r*0.15} L52.5 ${62-r*0.05} L49.5 ${62-r*0.05} Z" fill="#fff200" stroke="#ff9900" stroke-width="0.5"/>
+    ${blush(50-r*0.55, 50+r*0.55, 64, 4, e.a)}
+    ${bigEyes(50-r*0.4, 50+r*0.4, 58, 5)}
+    <path d="M48 64 L52 64 L50 67 Z" fill="#ff8fbf" stroke="#3a2a2a" stroke-width="0.6"/>
+    <path d="M50 67 L50 69 M50 69 Q47 70 46 68 M50 69 Q53 70 54 68" stroke="#3a2a2a" stroke-width="1" fill="none" stroke-linecap="round"/>
+  `;
 }
 
 /* -------- 6. ペガサス -------- */
 function drawPegasus(e, stage, pid) {
-  const bodyR = 17 + (stage-4)*2.3;
-  const eyeR = 4 + (stage-4)*0.3;
-  const wingW = stage < 5 ? 0 : (stage-4)*5.5;
-  const body = `<ellipse cx="50" cy="62" rx="${bodyR}" ry="${bodyR*0.95}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.6"/>`;
-  const belly = stage >= 5 ? `<ellipse cx="50" cy="66" rx="${bodyR*0.55}" ry="${bodyR*0.7}" fill="${e.s}" opacity="0.85"/>` : "";
-  const ears = `<path d="M${50-bodyR*0.35} ${62-bodyR*0.85} L${50-bodyR*0.42} ${62-bodyR-5} L${50-bodyR*0.1} ${62-bodyR*0.7} Z" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.2"/>
-    <path d="M${50+bodyR*0.35} ${62-bodyR*0.85} L${50+bodyR*0.42} ${62-bodyR-5} L${50+bodyR*0.1} ${62-bodyR*0.7} Z" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.2"/>`;
-  // 大きな翼（羽根の段つき）
-  const wings = stage >= 5 ? `
-    <path d="M${50-bodyR*0.7} 58 Q${50-bodyR-wingW} ${44-wingW*0.5} ${50-bodyR*1.4-wingW*0.3} ${56-wingW*0.2} Q${50-bodyR-wingW*0.6} ${60} ${50-bodyR*0.7} 64 Z" fill="${e.s}" stroke="#3a2a2a" stroke-width="1.2"/>
-    <path d="M${50-bodyR*0.85} ${58} Q${50-bodyR-wingW*0.7} ${50-wingW*0.2} ${50-bodyR*1.2-wingW*0.2} ${56}" stroke="#3a2a2a" stroke-width="0.7" fill="none"/>
-    <path d="M${50+bodyR*0.7} 58 Q${50+bodyR+wingW} ${44-wingW*0.5} ${50+bodyR*1.4+wingW*0.3} ${56-wingW*0.2} Q${50+bodyR+wingW*0.6} ${60} ${50+bodyR*0.7} 64 Z" fill="${e.s}" stroke="#3a2a2a" stroke-width="1.2"/>
-    <path d="M${50+bodyR*0.85} ${58} Q${50+bodyR+wingW*0.7} ${50-wingW*0.2} ${50+bodyR*1.2+wingW*0.2} ${56}" stroke="#3a2a2a" stroke-width="0.7" fill="none"/>` : "";
-  const mane = stage >= 6 ? `<path d="M${50-bodyR*0.55} ${62-bodyR*0.55} Q${50-bodyR-3} ${62-bodyR*0.2} ${50-bodyR-1} ${62+bodyR*0.3}" fill="${e.a}" stroke="#3a2a2a" stroke-width="1"/>` : "";
-  const tail = stage >= 7 ? `<path d="M${50+bodyR*0.85} 62 Q${50+bodyR+8} ${56-stage*0.4} ${50+bodyR+6} ${66+stage*0.3} Q${50+bodyR+12} ${72+stage*0.4} ${50+bodyR+8} ${78+stage*0.4}" fill="${e.a}" stroke="#3a2a2a" stroke-width="1.2"/>` : "";
-  const star = stage >= 8 ? `<path d="M50 ${62-bodyR-2} L51.5 ${62-bodyR+1.5} L55 ${62-bodyR+2} L52.2 ${62-bodyR+4.2} L53 ${62-bodyR+8} L50 ${62-bodyR+6} L47 ${62-bodyR+8} L47.8 ${62-bodyR+4.2} L45 ${62-bodyR+2} L48.5 ${62-bodyR+1.5} Z" fill="#fff200" stroke="#ff9900" stroke-width="0.6"/>` : "";
-  const nose = `<ellipse cx="50" cy="68" rx="2" ry="1.4" fill="#222"/>`;
-  return tail + wings + body + belly + ears + mane + star + blush(50-bodyR*0.55, 50+bodyR*0.55, 64, 3.5, e.a) + bigEyes(50-bodyR*0.32, 50+bodyR*0.32, 58, eyeR) + nose + smile(50, 71, 3);
+  if (stage <= 6) {
+    // ベビー: 翼のない子馬
+    const t = stage - 4;
+    const r = 13 + t*1.5;
+    return `
+      <ellipse cx="50" cy="64" rx="${r}" ry="${r*0.95}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.6"/>
+      <ellipse cx="50" cy="68" rx="${r*0.55}" ry="${r*0.65}" fill="${e.s}" opacity="0.85"/>
+      <path d="M${50-r*0.35} ${64-r*0.85} L${50-r*0.42} ${64-r-3} L${50-r*0.1} ${64-r*0.7} Z" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.2"/>
+      <path d="M${50+r*0.35} ${64-r*0.85} L${50+r*0.42} ${64-r-3} L${50+r*0.1} ${64-r*0.7} Z" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.2"/>
+      ${t >= 1 ? `<path d="M${50-r*0.6} ${64-r*0.4} Q${50-r-3} ${64-r*0.2} ${50-r-1} ${64+r*0.3}" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.8"/>` : ""}
+      ${blush(50-r*0.55, 50+r*0.55, 66, 3, e.a)}
+      ${bigEyes(50-r*0.3, 50+r*0.3, 62, 3.5+t*0.2)}
+      <ellipse cx="50" cy="68" rx="1.5" ry="1" fill="#222"/>
+      ${smile(50, 71, 2.5)}
+    `;
+  }
+  if (stage <= 9) {
+    // 進化形: 翼を持つペガサス
+    const t = stage - 7;
+    const r = 17 + t*1.5;
+    const wingW = 8 + t*4;
+    return `
+      <path d="M${50+r*0.85} 62 Q${50+r+8} ${56-t} ${50+r+6} ${66+t} Q${50+r+12} ${72+t} ${50+r+8} ${78+t}" fill="${e.a}" stroke="#3a2a2a" stroke-width="1.2"/>
+      <path d="M${50-r*0.7} 58 Q${50-r-wingW} ${46-wingW*0.4} ${50-r*1.4-wingW*0.3} ${56-wingW*0.2} Q${50-r-wingW*0.6} 60 ${50-r*0.7} 64 Z" fill="${e.s}" stroke="#3a2a2a" stroke-width="1.2"/>
+      <path d="M${50-r*0.85} 58 Q${50-r-wingW*0.7} ${50-wingW*0.2} ${50-r*1.2-wingW*0.2} 56" stroke="#3a2a2a" stroke-width="0.7" fill="none"/>
+      <path d="M${50+r*0.7} 58 Q${50+r+wingW} ${46-wingW*0.4} ${50+r*1.4+wingW*0.3} ${56-wingW*0.2} Q${50+r+wingW*0.6} 60 ${50+r*0.7} 64 Z" fill="${e.s}" stroke="#3a2a2a" stroke-width="1.2"/>
+      <path d="M${50+r*0.85} 58 Q${50+r+wingW*0.7} ${50-wingW*0.2} ${50+r*1.2+wingW*0.2} 56" stroke="#3a2a2a" stroke-width="0.7" fill="none"/>
+      <ellipse cx="50" cy="62" rx="${r}" ry="${r*0.95}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.6"/>
+      <ellipse cx="50" cy="66" rx="${r*0.55}" ry="${r*0.7}" fill="${e.s}" opacity="0.85"/>
+      <path d="M${50-r*0.35} ${62-r*0.85} L${50-r*0.42} ${62-r-5} L${50-r*0.1} ${62-r*0.7} Z" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.2"/>
+      <path d="M${50+r*0.35} ${62-r*0.85} L${50+r*0.42} ${62-r-5} L${50+r*0.1} ${62-r*0.7} Z" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.2"/>
+      <path d="M${50-r*0.55} ${62-r*0.55} Q${50-r-3} ${62-r*0.2} ${50-r-1} ${62+r*0.3}" fill="${e.a}" stroke="#3a2a2a" stroke-width="1"/>
+      ${blush(50-r*0.55, 50+r*0.55, 64, 3.5, e.a)}
+      ${bigEyes(50-r*0.32, 50+r*0.32, 58, 4.5+t*0.2)}
+      <ellipse cx="50" cy="68" rx="2" ry="1.4" fill="#222"/>
+      ${smile(50, 71, 3)}
+    `;
+  }
+  // 最終形: 神聖ペガサス（巨大な羽、ヘッドギア、星の額飾り）
+  const r = 19, wingW = 22;
+  return `
+    <path d="M${50+r*0.85} 62 Q${50+r+10} 56 ${50+r+8} 70 Q${50+r+18} 78 ${50+r+14} 86" fill="${e.a}" stroke="#3a2a2a" stroke-width="1.4"/>
+    <path d="M${50+r*0.85} 60 Q${50+r+18} 48 ${50+r+22} 36" fill="${e.a}" stroke="#3a2a2a" stroke-width="1.4"/>
+    <path d="M${50-r*0.7} 56 Q${50-r-wingW} 22 ${50-r*1.6-wingW*0.3} 50 Q${50-r-wingW*0.5} 56 ${50-r*0.7} 64 Z" fill="${e.s}" stroke="#3a2a2a" stroke-width="1.4"/>
+    <path d="M${50-r*0.85} 58 Q${50-r-wingW*0.7} 40 ${50-r*1.3-wingW*0.2} 54" stroke="#3a2a2a" stroke-width="0.7" fill="none"/>
+    <path d="M${50-r*0.85} 62 Q${50-r-wingW*0.5} 52 ${50-r*1.2-wingW*0.1} 60" stroke="#3a2a2a" stroke-width="0.7" fill="none"/>
+    <path d="M${50+r*0.7} 56 Q${50+r+wingW} 22 ${50+r*1.6+wingW*0.3} 50 Q${50+r+wingW*0.5} 56 ${50+r*0.7} 64 Z" fill="${e.s}" stroke="#3a2a2a" stroke-width="1.4"/>
+    <path d="M${50+r*0.85} 58 Q${50+r+wingW*0.7} 40 ${50+r*1.3+wingW*0.2} 54" stroke="#3a2a2a" stroke-width="0.7" fill="none"/>
+    <path d="M${50+r*0.85} 62 Q${50+r+wingW*0.5} 52 ${50+r*1.2+wingW*0.1} 60" stroke="#3a2a2a" stroke-width="0.7" fill="none"/>
+    <ellipse cx="50" cy="62" rx="${r}" ry="${r*0.95}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.8"/>
+    <ellipse cx="50" cy="66" rx="${r*0.6}" ry="${r*0.75}" fill="${e.s}" opacity="0.9"/>
+    <path d="M${50-r*0.35} ${62-r*0.85} L${50-r*0.42} ${62-r-7} L${50-r*0.1} ${62-r*0.7} Z" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.2"/>
+    <path d="M${50+r*0.35} ${62-r*0.85} L${50+r*0.42} ${62-r-7} L${50+r*0.1} ${62-r*0.7} Z" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.2"/>
+    <path d="M${50-r*0.55} ${62-r*0.55} Q${50-r-3} ${62-r*0.2} ${50-r-1} ${62+r*0.3} Q${50-r-5} ${62+r*0.55} ${50-r-1} ${62+r*0.75}" fill="${e.a}" stroke="#3a2a2a" stroke-width="1"/>
+    <path d="M50 ${62-r*0.95} L46 ${62-r-6} L54 ${62-r-6} Z" fill="#fff200" stroke="#ff9900" stroke-width="0.8"/>
+    <path d="M50 ${62-r-8} L51.5 ${62-r-5} L55 ${62-r-4.5} L52.3 ${62-r-2.5} L53.2 ${62-r+0.5} L50 ${62-r-1.5} L46.8 ${62-r+0.5} L47.7 ${62-r-2.5} L45 ${62-r-4.5} L48.5 ${62-r-5} Z" fill="#fff200" stroke="#ff9900" stroke-width="0.7"/>
+    ${blush(50-r*0.55, 50+r*0.55, 64, 3.5, e.a)}
+    ${bigEyes(50-r*0.32, 50+r*0.32, 58, 5)}
+    <ellipse cx="50" cy="68" rx="2" ry="1.4" fill="#222"/>
+    ${smile(50, 71, 3)}
+  `;
 }
 
 /* -------- 7. バード (鳥) -------- */
 function drawBird(e, stage, pid) {
-  const bodyR = 16 + (stage-4) * 2.5;
-  const eyeR = 4.5 + (stage-4)*0.3;
-  const wingW = (stage-3)*4;
-  const beakL = 4 + (stage-4)*0.9;
-  const body = `<ellipse cx="50" cy="62" rx="${bodyR}" ry="${bodyR*1.12}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.6"/>`;
-  const belly = stage >= 5 ? `<ellipse cx="50" cy="68" rx="${bodyR*0.55}" ry="${bodyR*0.75}" fill="${e.s}" opacity="0.85"/>` : "";
-  const wings = stage >= 5 ? `<path d="M${50-bodyR*0.4} 60 Q${50-bodyR-wingW} 58 ${50-bodyR*0.7} ${72+wingW*0.3} Z" fill="${e.s}" stroke="#3a2a2a" stroke-width="1.2"/>
-    <path d="M${50+bodyR*0.4} 60 Q${50+bodyR+wingW} 58 ${50+bodyR*0.7} ${72+wingW*0.3} Z" fill="${e.s}" stroke="#3a2a2a" stroke-width="1.2"/>` : "";
-  const beak = `<path d="M${50-beakL*0.5} 58 L${50+beakL*0.5} 58 L50 ${58+beakL*1.1} Z" fill="${e.a}" stroke="#3a2a2a" stroke-width="1"/>`;
-  const crest = stage >= 6 ? `<path d="M50 ${62-bodyR} L46 ${54-bodyR*1.25} L50 ${56-bodyR*1.15} L54 ${52-bodyR*1.3} L48 ${50-bodyR*1.25} L52 ${48-bodyR*1.3} Z" fill="${e.a}" stroke="#3a2a2a" stroke-width="1"/>` : "";
-  const tail = stage >= 7 ? `<path d="M${50-3} ${62+bodyR*0.95} L${50-10-stage*0.6} ${76+stage*0.5} L${50-2} ${74+stage*0.3} L50 ${80+stage*0.4} L${50+2} ${74+stage*0.3} L${50+10+stage*0.6} ${76+stage*0.5} L${50+3} ${62+bodyR*0.95} Z" fill="${e.s}" stroke="#3a2a2a" stroke-width="1"/>` : "";
-  const feet = stage >= 5 ? `<path d="M${50-5} ${62+bodyR*0.95} L${50-7} ${62+bodyR+5} M${50-7} ${62+bodyR+5} L${50-10} ${62+bodyR+5} M${50-7} ${62+bodyR+5} L${50-4} ${62+bodyR+5}" stroke="${e.a}" stroke-width="1.6" fill="none" stroke-linecap="round"/>
-    <path d="M${50+5} ${62+bodyR*0.95} L${50+7} ${62+bodyR+5} M${50+7} ${62+bodyR+5} L${50+10} ${62+bodyR+5} M${50+7} ${62+bodyR+5} L${50+4} ${62+bodyR+5}" stroke="${e.a}" stroke-width="1.6" fill="none" stroke-linecap="round"/>` : "";
-  return tail + body + belly + wings + feet + crest + blush(50-bodyR*0.55, 50+bodyR*0.55, 60, 3.5, e.a) + bigEyes(50-bodyR*0.35, 50+bodyR*0.35, 52, eyeR) + beak;
+  if (stage <= 6) {
+    // ベビー: ヒヨコ（小さく丸い、しっぽなし）
+    const t = stage - 4;
+    const r = 13 + t*1.5;
+    return `
+      <ellipse cx="50" cy="64" rx="${r}" ry="${r*1.05}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.6"/>
+      <ellipse cx="50" cy="68" rx="${r*0.55}" ry="${r*0.6}" fill="${e.s}" opacity="0.85"/>
+      <path d="M${50-2.5} 62 L${50+2.5} 62 L50 ${62+4} Z" fill="${e.a}" stroke="#3a2a2a" stroke-width="1"/>
+      <path d="M${50-2} ${64+r*0.9} L${50-3} ${64+r+3} M${50-3} ${64+r+3} L${50-5} ${64+r+3} M${50-3} ${64+r+3} L${50-1} ${64+r+3}" stroke="${e.a}" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      <path d="M${50+2} ${64+r*0.9} L${50+3} ${64+r+3} M${50+3} ${64+r+3} L${50+5} ${64+r+3} M${50+3} ${64+r+3} L${50+1} ${64+r+3}" stroke="${e.a}" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      ${blush(50-r*0.55, 50+r*0.55, 64, 3, e.a)}
+      ${bigEyes(50-r*0.3, 50+r*0.3, 58, 3.5+t*0.2)}
+    `;
+  }
+  if (stage <= 9) {
+    // 進化形: 立派な羽根と尾を持つ鳥
+    const t = stage - 7;
+    const r = 17 + t*1.5;
+    const wingW = 6 + t*3;
+    return `
+      <path d="M${50-3} ${62+r*0.95} L${50-10-t*1.5} ${76+t*1.2} L${50-2} ${74+t*0.6} L50 ${80+t} L${50+2} ${74+t*0.6} L${50+10+t*1.5} ${76+t*1.2} L${50+3} ${62+r*0.95} Z" fill="${e.s}" stroke="#3a2a2a" stroke-width="1"/>
+      <ellipse cx="50" cy="62" rx="${r}" ry="${r*1.12}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.6"/>
+      <ellipse cx="50" cy="68" rx="${r*0.55}" ry="${r*0.75}" fill="${e.s}" opacity="0.85"/>
+      <path d="M${50-r*0.4} 60 Q${50-r-wingW} 58 ${50-r*0.7} ${72+wingW*0.3} Z" fill="${e.s}" stroke="#3a2a2a" stroke-width="1.2"/>
+      <path d="M${50+r*0.4} 60 Q${50+r+wingW} 58 ${50+r*0.7} ${72+wingW*0.3} Z" fill="${e.s}" stroke="#3a2a2a" stroke-width="1.2"/>
+      <path d="M50 ${62-r} L46 ${54-r*1.25} L50 ${56-r*1.15} L54 ${52-r*1.3} L48 ${50-r*1.25} L52 ${48-r*1.3} Z" fill="${e.a}" stroke="#3a2a2a" stroke-width="1"/>
+      <path d="M${50-3} 58 L${50+3} 58 L50 ${58+5+t*0.5} Z" fill="${e.a}" stroke="#3a2a2a" stroke-width="1"/>
+      <path d="M${50-5} ${62+r*0.95} L${50-7} ${62+r+5} M${50-7} ${62+r+5} L${50-10} ${62+r+5} M${50-7} ${62+r+5} L${50-4} ${62+r+5}" stroke="${e.a}" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+      <path d="M${50+5} ${62+r*0.95} L${50+7} ${62+r+5} M${50+7} ${62+r+5} L${50+10} ${62+r+5} M${50+7} ${62+r+5} L${50+4} ${62+r+5}" stroke="${e.a}" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+      ${blush(50-r*0.55, 50+r*0.55, 60, 3.5, e.a)}
+      ${bigEyes(50-r*0.35, 50+r*0.35, 52, 4.5+t*0.2)}
+    `;
+  }
+  // 最終形: 孔雀のような扇尾
+  const r = 19;
+  let fan = "";
+  for (let i = -4; i <= 4; i++) {
+    const ang = i * 0.22;
+    const x = 50 + Math.sin(ang) * 32;
+    const y = 76 + Math.cos(ang) * 30;
+    const x2 = 50 + Math.sin(ang) * 20;
+    const y2 = 76 + Math.cos(ang) * 18;
+    fan += `<path d="M${(50+x2)/2} ${(75+y2)/2} L${x} ${y}" stroke="${i % 2 === 0 ? e.s : e.a}" stroke-width="6" stroke-linecap="round"/>`;
+    fan += `<circle cx="${x}" cy="${y}" r="3" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.6"/>`;
+    fan += `<circle cx="${x}" cy="${y}" r="1.5" fill="${e.p}"/>`;
+  }
+  return `
+    ${fan}
+    <ellipse cx="50" cy="62" rx="${r}" ry="${r*1.12}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.8"/>
+    <ellipse cx="50" cy="68" rx="${r*0.6}" ry="${r*0.8}" fill="${e.s}" opacity="0.9"/>
+    <path d="M${50-r*0.4} 60 Q${50-r-12} 56 ${50-r*0.7} ${72+4} Z" fill="${e.s}" stroke="#3a2a2a" stroke-width="1.4"/>
+    <path d="M${50+r*0.4} 60 Q${50+r+12} 56 ${50+r*0.7} ${72+4} Z" fill="${e.s}" stroke="#3a2a2a" stroke-width="1.4"/>
+    <path d="M50 ${62-r-2} L44 ${50-r*1.3} L50 ${54-r*1.2} L56 ${48-r*1.35} L46 ${44-r*1.3} L54 ${42-r*1.35} Z" fill="${e.a}" stroke="#3a2a2a" stroke-width="1"/>
+    <circle cx="50" cy="${42-r*1.2}" r="2" fill="${e.p}"/>
+    <path d="M${50-3.5} 58 L${50+3.5} 58 L50 ${58+7} Z" fill="${e.a}" stroke="#3a2a2a" stroke-width="1"/>
+    <path d="M${50-5} ${62+r*0.95} L${50-7} ${62+r+6} M${50-7} ${62+r+6} L${50-11} ${62+r+6} M${50-7} ${62+r+6} L${50-4} ${62+r+6}" stroke="${e.a}" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+    <path d="M${50+5} ${62+r*0.95} L${50+7} ${62+r+6} M${50+7} ${62+r+6} L${50+11} ${62+r+6} M${50+7} ${62+r+6} L${50+4} ${62+r+6}" stroke="${e.a}" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+    ${blush(50-r*0.55, 50+r*0.55, 60, 4, e.a)}
+    ${bigEyes(50-r*0.35, 50+r*0.35, 52, 5)}
+  `;
 }
 
 /* -------- 8. クラウド (雲) -------- */
 function drawCloud(e, stage, pid) {
-  const t = stage - 4;
-  const scale = 1 + t*0.1;
-  // モコモコ雲（複数の円）
-  const lumps = `
-    <circle cx="32" cy="64" r="${14*scale}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.5"/>
-    <circle cx="50" cy="56" r="${16*scale}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.5"/>
-    <circle cx="68" cy="64" r="${14*scale}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.5"/>
-    <circle cx="40" cy="72" r="${10*scale}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.5"/>
-    <circle cx="60" cy="72" r="${10*scale}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.5"/>
-    ${stage >= 6 ? `<circle cx="22" cy="56" r="${8*scale}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.5"/>
-    <circle cx="78" cy="56" r="${8*scale}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.5"/>` : ""}`;
-  // 影を統合
-  const baseShadow = `<ellipse cx="50" cy="68" rx="${28*scale}" ry="${10*scale}" fill="${e.s}" opacity="0.6"/>`;
-  // 雨粒
-  const drops = stage >= 8 ? `<path d="M30 84 Q28 80 30 76 Q32 80 30 84 Z M50 88 Q48 84 50 80 Q52 84 50 88 Z M70 84 Q68 80 70 76 Q72 80 70 84 Z" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.6"/>` : "";
-  // 稲妻
-  const bolt = stage >= 9 ? `<path d="M50 36 L46 46 L50 46 L46 56 L52 44 L48 44 Z" fill="#fff200" stroke="#ff9900" stroke-width="0.8"/>` : "";
-  return lumps + baseShadow + bolt + blush(40, 60, 60, 3.5, e.a) + bigEyes(45, 55, 56, 4 + t*0.3) + smile(50, 62, 3) + drops;
+  if (stage <= 6) {
+    // ベビー: 小さい単一の雲のかたまり
+    const t = stage - 4;
+    const sc = 0.7 + t*0.1;
+    return `
+      <circle cx="38" cy="62" r="${10*sc}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.4"/>
+      <circle cx="50" cy="58" r="${12*sc}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.4"/>
+      <circle cx="62" cy="62" r="${10*sc}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.4"/>
+      <ellipse cx="50" cy="66" rx="${20*sc}" ry="${6*sc}" fill="${e.s}" opacity="0.6"/>
+      ${blush(43, 57, 60, 3, e.a)}
+      ${bigEyes(46, 54, 56, 3.5+t*0.2)}
+      ${smile(50, 61, 2.5)}
+    `;
+  }
+  if (stage <= 9) {
+    // 進化形: 大きな雷雲（稲妻あり）
+    const t = stage - 7;
+    const sc = 1 + t*0.1;
+    return `
+      <circle cx="32" cy="64" r="${14*sc}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.5"/>
+      <circle cx="50" cy="56" r="${16*sc}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.5"/>
+      <circle cx="68" cy="64" r="${14*sc}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.5"/>
+      <circle cx="40" cy="72" r="${10*sc}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.5"/>
+      <circle cx="60" cy="72" r="${10*sc}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.5"/>
+      <circle cx="22" cy="56" r="${8*sc}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.5"/>
+      <circle cx="78" cy="56" r="${8*sc}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.5"/>
+      <ellipse cx="50" cy="68" rx="${28*sc}" ry="${10*sc}" fill="${e.s}" opacity="0.6"/>
+      ${t >= 1 ? `<path d="M50 80 L46 88 L50 88 L46 96 L54 84 L48 84 Z" fill="#fff200" stroke="#ff9900" stroke-width="0.8"/>` : ""}
+      ${blush(40, 60, 60, 3.5, e.a)}
+      ${bigEyes(45, 55, 56, 4.5+t*0.3)}
+      ${smile(50, 62, 3)}
+    `;
+  }
+  // 最終形: 嵐の巨人雲（巨大、雨、雷×3）
+  return `
+    <circle cx="22" cy="54" r="13" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.8"/>
+    <circle cx="78" cy="54" r="13" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.8"/>
+    <circle cx="32" cy="48" r="14" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.8"/>
+    <circle cx="68" cy="48" r="14" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.8"/>
+    <circle cx="50" cy="42" r="19" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.8"/>
+    <circle cx="40" cy="64" r="14" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.8"/>
+    <circle cx="60" cy="64" r="14" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.8"/>
+    <circle cx="50" cy="68" r="16" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.8"/>
+    <ellipse cx="50" cy="64" rx="34" ry="11" fill="${e.s}" opacity="0.65"/>
+    <path d="M30 72 L25 80 L30 80 L25 90 L34 76 L28 76 Z" fill="#fff200" stroke="#ff9900" stroke-width="0.9"/>
+    <path d="M50 76 L45 86 L51 86 L45 96 L56 80 L49 80 Z" fill="#fff200" stroke="#ff9900" stroke-width="0.9"/>
+    <path d="M70 72 L65 80 L70 80 L65 90 L74 76 L68 76 Z" fill="#fff200" stroke="#ff9900" stroke-width="0.9"/>
+    <path d="M18 74 Q16 70 18 66 Q20 70 18 74 Z" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.6"/>
+    <path d="M82 74 Q80 70 82 66 Q84 70 82 74 Z" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.6"/>
+    ${blush(38, 62, 50, 4, e.a)}
+    ${bigEyes(43, 57, 44, 5)}
+    <path d="M${50-7} 54 Q50 60 ${50+7} 54 Q50 50 ${50-7} 54 Z" fill="#a83258" stroke="#222" stroke-width="0.8"/>
+  `;
 }
 
 /* -------- 9. ハムスター -------- */
 function drawHamster(e, stage, pid) {
-  const bodyR = 17 + (stage-4)*2.2;
-  const eyeR = 3.5 + (stage-4)*0.25;
-  const body = `<ellipse cx="50" cy="64" rx="${bodyR}" ry="${bodyR*0.95}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.6"/>`;
-  const belly = stage >= 5 ? `<ellipse cx="50" cy="68" rx="${bodyR*0.65}" ry="${bodyR*0.6}" fill="${e.s}" opacity="0.9"/>` : "";
-  // 小さい丸い耳
-  const ears = `<circle cx="${50-bodyR*0.6}" cy="${64-bodyR*0.85}" r="${4+stage*0.2}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.2"/>
-    <circle cx="${50+bodyR*0.6}" cy="${64-bodyR*0.85}" r="${4+stage*0.2}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.2"/>
-    <circle cx="${50-bodyR*0.6}" cy="${64-bodyR*0.85}" r="${2+stage*0.1}" fill="${e.a}" opacity="0.7"/>
-    <circle cx="${50+bodyR*0.6}" cy="${64-bodyR*0.85}" r="${2+stage*0.1}" fill="${e.a}" opacity="0.7"/>`;
-  // ほっぺた（特徴的）
-  const cheeks = stage >= 5 ? `<circle cx="${50-bodyR*0.75}" cy="${68}" r="${5+stage*0.4}" fill="${e.s}" stroke="#3a2a2a" stroke-width="1"/>
-    <circle cx="${50+bodyR*0.75}" cy="${68}" r="${5+stage*0.4}" fill="${e.s}" stroke="#3a2a2a" stroke-width="1"/>` : "";
-  // ヒゲ
-  const whiskers = stage >= 6 ? `<path d="M${50-bodyR*0.4} 70 L${50-bodyR-3} 70 M${50+bodyR*0.4} 70 L${50+bodyR+3} 70" stroke="#3a2a2a" stroke-width="0.7" fill="none"/>` : "";
-  // 三角の鼻
-  const nose = `<path d="M48.5 67 L51.5 67 L50 69 Z" fill="#ff6b9d" stroke="#3a2a2a" stroke-width="0.5"/>`;
-  // 前歯
-  const teeth = stage >= 7 ? `<rect x="48.5" y="70" width="3" height="3.5" fill="white" stroke="#3a2a2a" stroke-width="0.5"/>` : "";
-  // 種を持っている
-  const seed = stage >= 8 ? `<ellipse cx="${50-bodyR-4}" cy="${64+bodyR*0.4}" rx="3" ry="4" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.8"/>` : "";
-  // 小さなしっぽ
-  const tail = stage >= 6 ? `<circle cx="${50+bodyR-2}" cy="${64+bodyR*0.6}" r="2" fill="${e.s}" stroke="#3a2a2a" stroke-width="0.8"/>` : "";
-  return tail + body + belly + cheeks + seed + ears + whiskers + bigEyes(50-bodyR*0.32, 50+bodyR*0.32, 62, eyeR) + nose + teeth;
+  if (stage <= 6) {
+    // ベビー: 赤ちゃんハムスター（耳のみ、頬なし）
+    const t = stage - 4;
+    const r = 13 + t*1.5;
+    return `
+      <ellipse cx="50" cy="65" rx="${r}" ry="${r*0.95}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.5"/>
+      <ellipse cx="50" cy="69" rx="${r*0.6}" ry="${r*0.55}" fill="${e.s}" opacity="0.9"/>
+      <circle cx="${50-r*0.55}" cy="${65-r*0.85}" r="${3+t*0.2}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.1"/>
+      <circle cx="${50+r*0.55}" cy="${65-r*0.85}" r="${3+t*0.2}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.1"/>
+      <circle cx="${50-r*0.55}" cy="${65-r*0.85}" r="${1.5+t*0.1}" fill="${e.a}" opacity="0.7"/>
+      <circle cx="${50+r*0.55}" cy="${65-r*0.85}" r="${1.5+t*0.1}" fill="${e.a}" opacity="0.7"/>
+      ${blush(50-r*0.55, 50+r*0.55, 68, 3, e.a)}
+      ${bigEyes(50-r*0.3, 50+r*0.3, 64, 3+t*0.2)}
+      <path d="M48.5 67 L51.5 67 L50 69 Z" fill="#ff6b9d" stroke="#3a2a2a" stroke-width="0.5"/>
+      ${smile(50, 71, 2)}
+    `;
+  }
+  if (stage <= 9) {
+    // 進化形: ほっぺ満タンのハムスター
+    const t = stage - 7;
+    const r = 17 + t*1.5;
+    return `
+      <circle cx="${50+r-2}" cy="${64+r*0.6}" r="2.5" fill="${e.s}" stroke="#3a2a2a" stroke-width="0.8"/>
+      <ellipse cx="50" cy="64" rx="${r}" ry="${r*0.95}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.6"/>
+      <ellipse cx="50" cy="68" rx="${r*0.65}" ry="${r*0.6}" fill="${e.s}" opacity="0.9"/>
+      <circle cx="${50-r*0.75}" cy="68" r="${6+t*0.4}" fill="${e.s}" stroke="#3a2a2a" stroke-width="1"/>
+      <circle cx="${50+r*0.75}" cy="68" r="${6+t*0.4}" fill="${e.s}" stroke="#3a2a2a" stroke-width="1"/>
+      <circle cx="${50-r*0.6}" cy="${64-r*0.85}" r="${4+t*0.3}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.2"/>
+      <circle cx="${50+r*0.6}" cy="${64-r*0.85}" r="${4+t*0.3}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.2"/>
+      <circle cx="${50-r*0.6}" cy="${64-r*0.85}" r="${2.2+t*0.1}" fill="${e.a}" opacity="0.7"/>
+      <circle cx="${50+r*0.6}" cy="${64-r*0.85}" r="${2.2+t*0.1}" fill="${e.a}" opacity="0.7"/>
+      <path d="M${50-r*0.4} 70 L${50-r-3} 70 M${50+r*0.4} 70 L${50+r+3} 70" stroke="#3a2a2a" stroke-width="0.7" fill="none"/>
+      ${bigEyes(50-r*0.32, 50+r*0.32, 62, 3.5+t*0.25)}
+      <path d="M48.5 67 L51.5 67 L50 69 Z" fill="#ff6b9d" stroke="#3a2a2a" stroke-width="0.5"/>
+      <rect x="48.5" y="70" width="3" height="3.5" fill="white" stroke="#3a2a2a" stroke-width="0.5"/>
+      ${t >= 1 ? `<ellipse cx="${50-r-4}" cy="${64+r*0.4}" rx="3" ry="4" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.8"/>` : ""}
+    `;
+  }
+  // 最終形: ヒーローハムスター（マント+どんぐり剣+王冠）
+  const r = 20;
+  return `
+    <path d="M${50-r*0.9} ${64-r*0.4} Q${50-r-12} ${64+r*0.5} ${50-r-8} ${64+r+5} L${50-r-2} ${64+r*0.9} Z" fill="#d94646" stroke="#3a2a2a" stroke-width="1.4"/>
+    <path d="M${50-r*0.9} ${64-r*0.4} L${50+r*0.9} ${64-r*0.4}" stroke="#fff200" stroke-width="2.5"/>
+    <circle cx="${50+r-2}" cy="${64+r*0.6}" r="3" fill="${e.s}" stroke="#3a2a2a" stroke-width="0.8"/>
+    <ellipse cx="50" cy="64" rx="${r}" ry="${r*0.95}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.8"/>
+    <ellipse cx="50" cy="68" rx="${r*0.65}" ry="${r*0.6}" fill="${e.s}" opacity="0.9"/>
+    <circle cx="${50-r*0.75}" cy="68" r="7" fill="${e.s}" stroke="#3a2a2a" stroke-width="1"/>
+    <circle cx="${50+r*0.75}" cy="68" r="7" fill="${e.s}" stroke="#3a2a2a" stroke-width="1"/>
+    <circle cx="${50-r*0.6}" cy="${64-r*0.85}" r="5" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.2"/>
+    <circle cx="${50+r*0.6}" cy="${64-r*0.85}" r="5" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.2"/>
+    <circle cx="${50-r*0.6}" cy="${64-r*0.85}" r="2.7" fill="${e.a}" opacity="0.75"/>
+    <circle cx="${50+r*0.6}" cy="${64-r*0.85}" r="2.7" fill="${e.a}" opacity="0.75"/>
+    <path d="M${50-r*0.6} ${64-r*1.05} L${50-r*0.5} ${64-r*1.25} L${50-r*0.4} ${64-r*1.1} L${50-r*0.3} ${64-r*1.3} L${50-r*0.2} ${64-r*1.05} Z" fill="#fff200" stroke="#ff9900" stroke-width="0.6"/>
+    <path d="M${50+r-8} ${64+r*0.5} L${50+r+12} ${64+r-2} L${50+r+10} ${64+r-6} L${50+r-6} ${64+r*0.3} Z" fill="#8b5a3c" stroke="#3a2a2a" stroke-width="0.8"/>
+    <ellipse cx="${50+r+11}" cy="${64+r-4}" rx="3" ry="4" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.7"/>
+    <path d="M${50-r*0.4} 70 L${50-r-3} 70 M${50+r*0.4} 70 L${50+r+3} 70" stroke="#3a2a2a" stroke-width="0.7" fill="none"/>
+    ${bigEyes(50-r*0.32, 50+r*0.32, 62, 4.5)}
+    <path d="M48 67 L52 67 L50 70 Z" fill="#ff6b9d" stroke="#3a2a2a" stroke-width="0.5"/>
+    <rect x="48" y="71" width="4" height="4" fill="white" stroke="#3a2a2a" stroke-width="0.5"/>
+  `;
 }
 
 /* -------- 10. ロックゴーレム (岩) -------- */
 function drawRock(e, stage, pid) {
-  const t = stage - 4;
-  const w = 18 + t*2.2;
-  const h = 18 + t*2;
-  // ゴツゴツした岩の形
-  const body = `<path d="M${50-w} 62 L${50-w*0.95} ${62-h*0.75} L${50-w*0.5} ${62-h} L${50-w*0.1} ${62-h*0.95} L${50+w*0.4} ${62-h*1.05} L${50+w*0.95} ${62-h*0.65} L${50+w} ${62+h*0.2} L${50+w*0.85} ${62+h*0.85} L${50+w*0.2} ${62+h} L${50-w*0.5} ${62+h*0.95} L${50-w*0.95} ${62+h*0.5} Z" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.8"/>`;
-  // ヒビ
-  const cracks = `<path d="M${50-w*0.4} ${62-h*0.5} L${50-w*0.2} ${62-h*0.2} L${50-w*0.3} ${62+h*0.1}" stroke="#3a2a2a" stroke-width="1" fill="none" opacity="0.6"/>
-    <path d="M${50+w*0.3} ${62+h*0.3} L${50+w*0.5} ${62+h*0.6}" stroke="#3a2a2a" stroke-width="1" fill="none" opacity="0.6"/>`;
-  // 結晶（背中のトゲ）
-  const crystals = stage >= 6 ? `<path d="M${50-w*0.5} ${62-h*0.95} L${50-w*0.55} ${62-h*1.4} L${50-w*0.3} ${62-h*1.2} Z" fill="${e.a}" stroke="#3a2a2a" stroke-width="1"/>
-    <path d="M50 ${62-h*1.05} L${50-2} ${62-h*1.5} L${50+2} ${62-h*1.5} Z" fill="${e.a}" stroke="#3a2a2a" stroke-width="1"/>
-    <path d="M${50+w*0.4} ${62-h*1.05} L${50+w*0.45} ${62-h*1.4} L${50+w*0.7} ${62-h*1.15} Z" fill="${e.a}" stroke="#3a2a2a" stroke-width="1"/>` : "";
-  // 腕
-  const arms = stage >= 7 ? `<rect x="${50-w-7}" y="${62+h*0.1}" width="9" height="${10+t*0.5}" rx="3" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.4"/>
-    <rect x="${50+w-2}" y="${62+h*0.1}" width="9" height="${10+t*0.5}" rx="3" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.4"/>` : "";
-  // 怖そうな眉
-  const brow = stage >= 6 ? `<path d="M${50-7} ${58-h*0.1} L${50-3} ${56-h*0.05} M${50+3} ${56-h*0.05} L${50+7} ${58-h*0.1}" stroke="#3a2a2a" stroke-width="1.6" fill="none" stroke-linecap="round"/>` : "";
-  // クリスタル目
-  const eyes = `<circle cx="${50-6}" cy="${62-h*0.05}" r="${3+t*0.2}" fill="${e.a}" stroke="#3a2a2a" stroke-width="1.2"/>
-    <circle cx="${50+6}" cy="${62-h*0.05}" r="${3+t*0.2}" fill="${e.a}" stroke="#3a2a2a" stroke-width="1.2"/>
-    <circle cx="${50-6}" cy="${62-h*0.05}" r="${1+t*0.1}" fill="#222"/>
-    <circle cx="${50+6}" cy="${62-h*0.05}" r="${1+t*0.1}" fill="#222"/>`;
-  // ニッと笑う口
-  const mouth = `<path d="M${50-5} ${62+h*0.25} Q50 ${62+h*0.4} ${50+5} ${62+h*0.25}" stroke="#3a2a2a" stroke-width="1.6" fill="none" stroke-linecap="round"/>`;
-  return arms + body + cracks + crystals + brow + eyes + mouth;
+  if (stage <= 6) {
+    // ベビー: 小さな石ころに目鼻
+    const t = stage - 4;
+    const w = 13 + t*1.5;
+    const h = 12 + t*1.4;
+    return `
+      <path d="M${50-w} 64 L${50-w*0.7} ${64-h} L${50-w*0.1} ${64-h*1.1} L${50+w*0.6} ${64-h*0.85} L${50+w} ${64} L${50+w*0.7} ${64+h*0.9} L${50-w*0.5} ${64+h*0.95} L${50-w*0.9} ${64+h*0.4} Z" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.6"/>
+      <path d="M${50-w*0.3} ${64-h*0.3} L${50-w*0.15} ${64-h*0.05}" stroke="#3a2a2a" stroke-width="0.8" fill="none" opacity="0.5"/>
+      <circle cx="${50-4}" cy="${64-h*0.1}" r="${2.5+t*0.2}" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.9"/>
+      <circle cx="${50+4}" cy="${64-h*0.1}" r="${2.5+t*0.2}" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.9"/>
+      <circle cx="${50-4}" cy="${64-h*0.1}" r="${1+t*0.1}" fill="#222"/>
+      <circle cx="${50+4}" cy="${64-h*0.1}" r="${1+t*0.1}" fill="#222"/>
+      ${smile(50, 64+h*0.3, 3)}
+    `;
+  }
+  if (stage <= 9) {
+    // 進化形: 腕付きゴーレム+結晶
+    const t = stage - 7;
+    const w = 18 + t*1.5;
+    const h = 18 + t*1.3;
+    return `
+      <rect x="${50-w-7}" y="${62+h*0.1}" width="9" height="${10+t*0.5}" rx="3" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.4"/>
+      <rect x="${50+w-2}" y="${62+h*0.1}" width="9" height="${10+t*0.5}" rx="3" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.4"/>
+      <path d="M${50-w} 62 L${50-w*0.95} ${62-h*0.75} L${50-w*0.5} ${62-h} L${50-w*0.1} ${62-h*0.95} L${50+w*0.4} ${62-h*1.05} L${50+w*0.95} ${62-h*0.65} L${50+w} ${62+h*0.2} L${50+w*0.85} ${62+h*0.85} L${50+w*0.2} ${62+h} L${50-w*0.5} ${62+h*0.95} L${50-w*0.95} ${62+h*0.5} Z" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.8"/>
+      <path d="M${50-w*0.4} ${62-h*0.5} L${50-w*0.2} ${62-h*0.2} L${50-w*0.3} ${62+h*0.1}" stroke="#3a2a2a" stroke-width="1" fill="none" opacity="0.6"/>
+      <path d="M${50+w*0.3} ${62+h*0.3} L${50+w*0.5} ${62+h*0.6}" stroke="#3a2a2a" stroke-width="1" fill="none" opacity="0.6"/>
+      <path d="M${50-w*0.5} ${62-h*0.95} L${50-w*0.55} ${62-h*1.35} L${50-w*0.3} ${62-h*1.15} Z" fill="${e.a}" stroke="#3a2a2a" stroke-width="1"/>
+      <path d="M50 ${62-h*1.05} L${50-2} ${62-h*1.45} L${50+2} ${62-h*1.45} Z" fill="${e.a}" stroke="#3a2a2a" stroke-width="1"/>
+      <path d="M${50+w*0.4} ${62-h*1.05} L${50+w*0.45} ${62-h*1.35} L${50+w*0.7} ${62-h*1.1} Z" fill="${e.a}" stroke="#3a2a2a" stroke-width="1"/>
+      <path d="M${50-7} ${58-h*0.1} L${50-3} ${56-h*0.05} M${50+3} ${56-h*0.05} L${50+7} ${58-h*0.1}" stroke="#3a2a2a" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+      <circle cx="${50-6}" cy="${62-h*0.05}" r="${3.5+t*0.2}" fill="${e.a}" stroke="#3a2a2a" stroke-width="1.2"/>
+      <circle cx="${50+6}" cy="${62-h*0.05}" r="${3.5+t*0.2}" fill="${e.a}" stroke="#3a2a2a" stroke-width="1.2"/>
+      <circle cx="${50-6}" cy="${62-h*0.05}" r="${1.2+t*0.1}" fill="#222"/>
+      <circle cx="${50+6}" cy="${62-h*0.05}" r="${1.2+t*0.1}" fill="#222"/>
+      <path d="M${50-5} ${62+h*0.25} Q50 ${62+h*0.4} ${50+5} ${62+h*0.25}" stroke="#3a2a2a" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+    `;
+  }
+  // 最終形: クリスタル鎧の巨大ゴーレム
+  const w = 22, h = 22;
+  return `
+    <rect x="${50-w-10}" y="${62+h*0.1}" width="11" height="22" rx="3" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.6"/>
+    <rect x="${50+w-1}" y="${62+h*0.1}" width="11" height="22" rx="3" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.6"/>
+    <path d="M${50-w-10} ${62+h*1.2} L${50-w-13} ${62+h*1.35} L${50-w-7} ${62+h*1.35} Z" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.8"/>
+    <path d="M${50+w+10} ${62+h*1.2} L${50+w+7} ${62+h*1.35} L${50+w+13} ${62+h*1.35} Z" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.8"/>
+    <path d="M${50-w} 62 L${50-w*0.95} ${62-h*0.75} L${50-w*0.5} ${62-h} L${50-w*0.1} ${62-h*0.95} L${50+w*0.4} ${62-h*1.05} L${50+w*0.95} ${62-h*0.65} L${50+w} ${62+h*0.2} L${50+w*0.85} ${62+h*0.85} L${50+w*0.2} ${62+h} L${50-w*0.5} ${62+h*0.95} L${50-w*0.95} ${62+h*0.5} Z" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="2"/>
+    <path d="M${50-w*0.5} ${62-h*0.95} L${50-w*0.55} ${62-h*1.55} L${50-w*0.25} ${62-h*1.2} Z" fill="${e.a}" stroke="#3a2a2a" stroke-width="1"/>
+    <path d="M50 ${62-h*1.05} L${50-3} ${62-h*1.7} L${50+3} ${62-h*1.7} Z" fill="${e.a}" stroke="#3a2a2a" stroke-width="1"/>
+    <path d="M${50+w*0.4} ${62-h*1.05} L${50+w*0.5} ${62-h*1.55} L${50+w*0.75} ${62-h*1.15} Z" fill="${e.a}" stroke="#3a2a2a" stroke-width="1"/>
+    <path d="M${50-w*0.7} ${62-h*0.4} L${50-w*0.55} ${62-h*0.85} L${50-w*0.35} ${62-h*0.45} Z" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.8"/>
+    <path d="M${50+w*0.55} ${62-h*0.4} L${50+w*0.7} ${62-h*0.85} L${50+w*0.35} ${62-h*0.45} Z" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.8"/>
+    <path d="M${50-w*0.6} ${62+h*0.5} L${50-w*0.4} ${62+h*0.9} L${50-w*0.2} ${62+h*0.5} Z" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.8"/>
+    <path d="M${50+w*0.55} ${62+h*0.5} L${50+w*0.35} ${62+h*0.9} L${50+w*0.15} ${62+h*0.5} Z" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.8"/>
+    <path d="M${50-9} ${58-h*0.15} L${50-3} ${56-h*0.05} M${50+3} ${56-h*0.05} L${50+9} ${58-h*0.15}" stroke="#3a2a2a" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+    <circle cx="${50-7}" cy="${62-h*0.05}" r="4.5" fill="${e.a}" stroke="#3a2a2a" stroke-width="1.4"/>
+    <circle cx="${50+7}" cy="${62-h*0.05}" r="4.5" fill="${e.a}" stroke="#3a2a2a" stroke-width="1.4"/>
+    <circle cx="${50-7}" cy="${62-h*0.05}" r="1.8" fill="#222"/>
+    <circle cx="${50+7}" cy="${62-h*0.05}" r="1.8" fill="#222"/>
+    <circle cx="${50-8}" cy="${62-h*0.1}" r="0.8" fill="white"/>
+    <circle cx="${50+6}" cy="${62-h*0.1}" r="0.8" fill="white"/>
+    <path d="M${50-6} ${62+h*0.25} Q50 ${62+h*0.45} ${50+6} ${62+h*0.25}" stroke="#3a2a2a" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+  `;
 }
 
 /* -------- 11. ロボット -------- */
 function drawRobot(e, stage, pid) {
-  const t = stage - 4;
-  const w = 16 + t*1.8;
-  const h = 14 + t*1.5;
-  // 胴体
-  const body = `<rect x="${50-w}" y="${62-h*0.2}" width="${w*2}" height="${h*1.8}" rx="3" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.6"/>`;
-  // 頭
-  const head = `<rect x="${50-w*0.85}" y="${62-h*1.2}" width="${w*1.7}" height="${h*1.1}" rx="3" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.6"/>`;
-  // 画面
-  const screen = `<rect x="${50-w*0.65}" y="${62-h}" width="${w*1.3}" height="${h*0.75}" rx="1.5" fill="#1a1a2a" stroke="#3a2a2a" stroke-width="1"/>`;
-  // LEDアイ
-  const eyes = `<circle cx="${50-w*0.35}" cy="${62-h*0.6}" r="${2.5+t*0.2}" fill="${e.a}"/>
-    <circle cx="${50+w*0.35}" cy="${62-h*0.6}" r="${2.5+t*0.2}" fill="${e.a}"/>
-    <circle cx="${50-w*0.35}" cy="${62-h*0.6}" r="${1+t*0.1}" fill="#fff"/>
-    <circle cx="${50+w*0.35}" cy="${62-h*0.6}" r="${1+t*0.1}" fill="#fff"/>`;
-  // アンテナ
-  const ant = `<line x1="50" y1="${62-h*1.2}" x2="50" y2="${62-h*1.6-t}" stroke="#3a2a2a" stroke-width="1.6"/>
-    <circle cx="50" cy="${62-h*1.6-t-2}" r="${2.5+t*0.2}" fill="${e.a}" stroke="#3a2a2a" stroke-width="1"/>`;
-  // 口（スピーカーグリル）
-  const mouth = stage >= 5 ? `<rect x="${50-6}" y="${62-h*0.15}" width="12" height="3" rx="1" fill="#3a2a2a"/>
-    <path d="M${50-5} ${62-h*0.05} L${50-5} ${62-h*0.13} M${50-2} ${62-h*0.05} L${50-2} ${62-h*0.13} M${50+1} ${62-h*0.05} L${50+1} ${62-h*0.13} M${50+4} ${62-h*0.05} L${50+4} ${62-h*0.13}" stroke="${e.s}" stroke-width="0.8"/>` : "";
-  // 腕
-  const arms = stage >= 6 ? `<rect x="${50-w-5}" y="${62+h*0.2}" width="5" height="${h+t*1.5}" rx="2" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.2"/>
-    <rect x="${50+w}" y="${62+h*0.2}" width="5" height="${h+t*1.5}" rx="2" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.2"/>
-    <circle cx="${50-w-2.5}" cy="${62+h*1.3+t*1.5}" r="${3+t*0.1}" fill="${e.s}" stroke="#3a2a2a" stroke-width="1"/>
-    <circle cx="${50+w+2.5}" cy="${62+h*1.3+t*1.5}" r="${3+t*0.1}" fill="${e.s}" stroke="#3a2a2a" stroke-width="1"/>` : "";
-  // 胸のボタンとパネル
-  const buttons = stage >= 7 ? `<circle cx="${50-w*0.4}" cy="${62+h*0.6}" r="${1.5+t*0.1}" fill="${e.a}"/>
-    <circle cx="50" cy="${62+h*0.6}" r="${1.5+t*0.1}" fill="${e.a}"/>
-    <circle cx="${50+w*0.4}" cy="${62+h*0.6}" r="${1.5+t*0.1}" fill="${e.a}"/>` : "";
-  // 足
-  const legs = stage >= 5 ? `<rect x="${50-w*0.55}" y="${62+h*1.6}" width="6" height="${5+t*0.4}" fill="${e.s}" stroke="#3a2a2a" stroke-width="1"/>
-    <rect x="${50+w*0.55-6}" y="${62+h*1.6}" width="6" height="${5+t*0.4}" fill="${e.s}" stroke="#3a2a2a" stroke-width="1"/>` : "";
-  return arms + legs + body + buttons + head + screen + eyes + ant + mouth;
+  if (stage <= 6) {
+    // ベビー: 丸いドローン（球体+アンテナ）
+    const t = stage - 4;
+    const r = 13 + t*1.5;
+    return `
+      <line x1="50" y1="${62-r*0.95}" x2="50" y2="${62-r-6-t}" stroke="#3a2a2a" stroke-width="1.4"/>
+      <circle cx="50" cy="${62-r-8-t}" r="${1.8+t*0.2}" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.8"/>
+      <circle cx="50" cy="62" r="${r}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.6"/>
+      <rect x="${50-r*0.6}" y="${62-r*0.3}" width="${r*1.2}" height="${r*0.55}" rx="2" fill="#1a1a2a" stroke="#3a2a2a" stroke-width="0.8"/>
+      <circle cx="${50-r*0.3}" cy="${62-r*0.05}" r="${2+t*0.2}" fill="${e.a}"/>
+      <circle cx="${50+r*0.3}" cy="${62-r*0.05}" r="${2+t*0.2}" fill="${e.a}"/>
+      <circle cx="${50-r*0.3}" cy="${62-r*0.05}" r="${0.8+t*0.1}" fill="#fff"/>
+      <circle cx="${50+r*0.3}" cy="${62-r*0.05}" r="${0.8+t*0.1}" fill="#fff"/>
+      <circle cx="${50-r*0.4}" cy="${62+r*0.55}" r="1" fill="${e.a}"/>
+      <circle cx="${50+r*0.4}" cy="${62+r*0.55}" r="1" fill="${e.a}"/>
+    `;
+  }
+  if (stage <= 9) {
+    // 進化形: 人型ロボット（頭+胴+手足）
+    const t = stage - 7;
+    const w = 16 + t*1.5;
+    const h = 14 + t*1.2;
+    return `
+      <rect x="${50-w-5}" y="${62+h*0.2}" width="5" height="${h+t}" rx="2" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.2"/>
+      <rect x="${50+w}" y="${62+h*0.2}" width="5" height="${h+t}" rx="2" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.2"/>
+      <circle cx="${50-w-2.5}" cy="${62+h*1.3+t}" r="${3+t*0.1}" fill="${e.s}" stroke="#3a2a2a" stroke-width="1"/>
+      <circle cx="${50+w+2.5}" cy="${62+h*1.3+t}" r="${3+t*0.1}" fill="${e.s}" stroke="#3a2a2a" stroke-width="1"/>
+      <rect x="${50-w*0.55}" y="${62+h*1.6}" width="6" height="${5+t*0.4}" fill="${e.s}" stroke="#3a2a2a" stroke-width="1"/>
+      <rect x="${50+w*0.55-6}" y="${62+h*1.6}" width="6" height="${5+t*0.4}" fill="${e.s}" stroke="#3a2a2a" stroke-width="1"/>
+      <rect x="${50-w}" y="${62-h*0.2}" width="${w*2}" height="${h*1.8}" rx="3" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.6"/>
+      <circle cx="${50-w*0.4}" cy="${62+h*0.6}" r="${1.5+t*0.1}" fill="${e.a}"/>
+      <circle cx="50" cy="${62+h*0.6}" r="${1.5+t*0.1}" fill="${e.a}"/>
+      <circle cx="${50+w*0.4}" cy="${62+h*0.6}" r="${1.5+t*0.1}" fill="${e.a}"/>
+      <rect x="${50-w*0.85}" y="${62-h*1.2}" width="${w*1.7}" height="${h*1.1}" rx="3" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.6"/>
+      <rect x="${50-w*0.65}" y="${62-h}" width="${w*1.3}" height="${h*0.75}" rx="1.5" fill="#1a1a2a" stroke="#3a2a2a" stroke-width="1"/>
+      <circle cx="${50-w*0.35}" cy="${62-h*0.6}" r="${2.5+t*0.2}" fill="${e.a}"/>
+      <circle cx="${50+w*0.35}" cy="${62-h*0.6}" r="${2.5+t*0.2}" fill="${e.a}"/>
+      <circle cx="${50-w*0.35}" cy="${62-h*0.6}" r="${1+t*0.1}" fill="#fff"/>
+      <circle cx="${50+w*0.35}" cy="${62-h*0.6}" r="${1+t*0.1}" fill="#fff"/>
+      <line x1="50" y1="${62-h*1.2}" x2="50" y2="${62-h*1.6-t}" stroke="#3a2a2a" stroke-width="1.6"/>
+      <circle cx="50" cy="${62-h*1.6-t-2}" r="${2.5+t*0.2}" fill="${e.a}" stroke="#3a2a2a" stroke-width="1"/>
+      <rect x="${50-6}" y="${62-h*0.15}" width="12" height="3" rx="1" fill="#3a2a2a"/>
+      <path d="M${50-5} ${62-h*0.05} L${50-5} ${62-h*0.13} M${50-2} ${62-h*0.05} L${50-2} ${62-h*0.13} M${50+1} ${62-h*0.05} L${50+1} ${62-h*0.13} M${50+4} ${62-h*0.05} L${50+4} ${62-h*0.13}" stroke="${e.s}" stroke-width="0.8"/>
+    `;
+  }
+  // 最終形: 大型メカ（キャノン+ジェットスラスター+ハッチ）
+  const w = 18, h = 16;
+  return `
+    <rect x="${50-w-12}" y="${62+h*0.2}" width="7" height="22" rx="2" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.4"/>
+    <rect x="${50-w-15}" y="${62+h*0.3}" width="12" height="6" rx="2" fill="${e.s}" stroke="#3a2a2a" stroke-width="1.2"/>
+    <circle cx="${50-w-15}" cy="${62+h*0.6}" r="2" fill="${e.a}"/>
+    <rect x="${50+w+5}" y="${62+h*0.2}" width="7" height="22" rx="2" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.4"/>
+    <rect x="${50+w+3}" y="${62+h*0.3}" width="12" height="6" rx="2" fill="${e.s}" stroke="#3a2a2a" stroke-width="1.2"/>
+    <circle cx="${50+w+15}" cy="${62+h*0.6}" r="2" fill="${e.a}"/>
+    <rect x="${50-w*0.55}" y="${62+h*1.6}" width="8" height="7" fill="${e.s}" stroke="#3a2a2a" stroke-width="1"/>
+    <rect x="${50+w*0.55-8}" y="${62+h*1.6}" width="8" height="7" fill="${e.s}" stroke="#3a2a2a" stroke-width="1"/>
+    <path d="M${50-w*0.55} ${62+h*1.6+7} L${50-w*0.55-3} ${62+h*1.6+10} L${50-w*0.55+8+3} ${62+h*1.6+10} L${50-w*0.55+8} ${62+h*1.6+7}" fill="${e.s}" stroke="#3a2a2a" stroke-width="0.8"/>
+    <path d="M${50+w*0.55-8} ${62+h*1.6+7} L${50+w*0.55-8-3} ${62+h*1.6+10} L${50+w*0.55+3} ${62+h*1.6+10} L${50+w*0.55} ${62+h*1.6+7}" fill="${e.s}" stroke="#3a2a2a" stroke-width="0.8"/>
+    <rect x="${50-w}" y="${62-h*0.2}" width="${w*2}" height="${h*1.8}" rx="3" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.8"/>
+    <circle cx="50" cy="${62+h*0.7}" r="5" fill="${e.a}" stroke="#3a2a2a" stroke-width="1.2"/>
+    <circle cx="50" cy="${62+h*0.7}" r="2" fill="#fff" opacity="0.9"/>
+    <circle cx="${50-w*0.45}" cy="${62+h*0.4}" r="1.5" fill="${e.a}"/>
+    <circle cx="${50-w*0.45}" cy="${62+h*1.1}" r="1.5" fill="${e.a}"/>
+    <circle cx="${50+w*0.45}" cy="${62+h*0.4}" r="1.5" fill="${e.a}"/>
+    <circle cx="${50+w*0.45}" cy="${62+h*1.1}" r="1.5" fill="${e.a}"/>
+    <rect x="${50-w*0.9}" y="${62-h*1.3}" width="${w*1.8}" height="${h*1.2}" rx="3" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.8"/>
+    <rect x="${50-w*0.7}" y="${62-h*1.1}" width="${w*1.4}" height="${h*0.85}" rx="1.5" fill="#1a1a2a" stroke="#3a2a2a" stroke-width="1.2"/>
+    <circle cx="${50-w*0.35}" cy="${62-h*0.65}" r="3" fill="${e.a}"/>
+    <circle cx="${50+w*0.35}" cy="${62-h*0.65}" r="3" fill="${e.a}"/>
+    <circle cx="${50-w*0.35}" cy="${62-h*0.65}" r="1.3" fill="#fff"/>
+    <circle cx="${50+w*0.35}" cy="${62-h*0.65}" r="1.3" fill="#fff"/>
+    <line x1="${50-6}" y1="${62-h*1.3}" x2="${50-6}" y2="${62-h*1.8}" stroke="#3a2a2a" stroke-width="1.6"/>
+    <line x1="${50+6}" y1="${62-h*1.3}" x2="${50+6}" y2="${62-h*1.8}" stroke="#3a2a2a" stroke-width="1.6"/>
+    <circle cx="${50-6}" cy="${62-h*1.8-2}" r="2" fill="#ff4d4d" stroke="#3a2a2a" stroke-width="0.8"/>
+    <circle cx="${50+6}" cy="${62-h*1.8-2}" r="2" fill="#ff4d4d" stroke="#3a2a2a" stroke-width="0.8"/>
+    <rect x="${50-7}" y="${62-h*0.15}" width="14" height="3.5" rx="1" fill="#3a2a2a"/>
+    <path d="M${50-5} ${62-h*0.04} L${50-5} ${62-h*0.13} M${50-2} ${62-h*0.04} L${50-2} ${62-h*0.13} M${50+1} ${62-h*0.04} L${50+1} ${62-h*0.13} M${50+4} ${62-h*0.04} L${50+4} ${62-h*0.13}" stroke="${e.s}" stroke-width="0.9"/>
+  `;
 }
 
 /* -------- 12. フェニックス (不死鳥) -------- */
 function drawPhoenix(e, stage, pid) {
-  const t = stage - 4;
-  const bodyR = 14 + t*2;
-  const wingW = 10 + t*4;
-  const body = `<ellipse cx="50" cy="62" rx="${bodyR}" ry="${bodyR*1.1}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.6"/>`;
-  const belly = stage >= 5 ? `<ellipse cx="50" cy="66" rx="${bodyR*0.55}" ry="${bodyR*0.7}" fill="${e.s}" opacity="0.85"/>` : "";
-  // 燃える翼
-  const flameWings = stage >= 5 ? `
-    <path d="M${50-bodyR*0.5} 58 Q${50-bodyR-wingW} ${48-wingW*0.4} ${50-bodyR-wingW*0.8} ${44-wingW*0.4} Q${50-bodyR-wingW*0.4} ${56} ${50-bodyR*1.1} ${64} L${50-bodyR-wingW*0.2} ${72} Q${50-bodyR-wingW*0.6} ${68} ${50-bodyR*0.7} 64 Z" fill="${e.p}" stroke="#3a2a2a" stroke-width="1.2"/>
-    <path d="M${50-bodyR*0.6} 60 Q${50-bodyR-wingW*0.6} ${52} ${50-bodyR-wingW*0.5} ${48}" stroke="${e.a}" stroke-width="1.5" fill="none"/>
-    <path d="M${50+bodyR*0.5} 58 Q${50+bodyR+wingW} ${48-wingW*0.4} ${50+bodyR+wingW*0.8} ${44-wingW*0.4} Q${50+bodyR+wingW*0.4} ${56} ${50+bodyR*1.1} ${64} L${50+bodyR+wingW*0.2} ${72} Q${50+bodyR+wingW*0.6} ${68} ${50+bodyR*0.7} 64 Z" fill="${e.p}" stroke="#3a2a2a" stroke-width="1.2"/>
-    <path d="M${50+bodyR*0.6} 60 Q${50+bodyR+wingW*0.6} ${52} ${50+bodyR+wingW*0.5} ${48}" stroke="${e.a}" stroke-width="1.5" fill="none"/>` : "";
-  // 炎の冠
-  const crest = `<path d="M${50-bodyR*0.4} ${62-bodyR} Q${50-3} ${62-bodyR-8-t} ${50} ${62-bodyR*1.1} Q${50+3} ${62-bodyR-6-t} ${50+bodyR*0.4} ${62-bodyR} Q${50+1} ${62-bodyR-12-t*1.4} ${50-bodyR*0.2} ${62-bodyR-4-t*0.6} Z" fill="${e.a}" stroke="#3a2a2a" stroke-width="1.2"/>
-    ${stage >= 7 ? `<path d="M50 ${62-bodyR-14-t} Q${50-2} ${62-bodyR-18-t*1.2} ${50+2} ${62-bodyR-16-t} Z" fill="${e.s}"/>` : ""}`;
-  // 炎の尻尾
-  const flameTail = stage >= 6 ? `<path d="M50 ${62+bodyR*0.95} Q${50-3} ${62+bodyR+8} ${50-1} ${62+bodyR+14+t} M50 ${62+bodyR*0.95} Q${50+3} ${62+bodyR+8} ${50+5} ${62+bodyR+12+t} M50 ${62+bodyR*0.95} Q${50-5} ${62+bodyR+8} ${50-6} ${62+bodyR+12+t}" stroke="${e.a}" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-    <path d="M50 ${62+bodyR*0.95} Q50 ${62+bodyR+10} ${50+1} ${62+bodyR+18+t*1.4}" stroke="${e.p}" stroke-width="3" fill="none" stroke-linecap="round"/>` : "";
-  const beak = `<path d="M${50-3} 58 L${50+3} 58 L50 ${58+5+t*0.5} Z" fill="${e.a}" stroke="#3a2a2a" stroke-width="1"/>`;
-  return flameTail + flameWings + body + belly + crest + blush(50-bodyR*0.55, 50+bodyR*0.55, 60, 3, e.a) + bigEyes(50-bodyR*0.35, 50+bodyR*0.35, 52, 4+t*0.3) + beak;
+  if (stage <= 6) {
+    // ベビー: 炎のヒヨコ（炎の冠だけ）
+    const t = stage - 4;
+    const r = 12 + t*1.5;
+    return `
+      <ellipse cx="50" cy="64" rx="${r}" ry="${r*1.1}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.6"/>
+      <ellipse cx="50" cy="68" rx="${r*0.55}" ry="${r*0.6}" fill="${e.s}" opacity="0.85"/>
+      <path d="M${50-r*0.5} ${64-r} Q50 ${64-r-6-t} ${50+r*0.5} ${64-r} Q50 ${64-r-3} ${50-r*0.5} ${64-r} Z" fill="${e.a}" stroke="#3a2a2a" stroke-width="1"/>
+      <path d="M${50-3} 60 L${50+3} 60 L50 ${60+4+t*0.4} Z" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.9"/>
+      <path d="M${50-2} ${64+r*0.95} L${50-3} ${64+r+3} M${50+2} ${64+r*0.95} L${50+3} ${64+r+3}" stroke="${e.a}" stroke-width="1.4" stroke-linecap="round"/>
+      ${blush(50-r*0.55, 50+r*0.55, 64, 3, e.a)}
+      ${bigEyes(50-r*0.3, 50+r*0.3, 56, 3.5+t*0.2)}
+    `;
+  }
+  if (stage <= 9) {
+    // 進化形: 炎の翼を持つ火の鳥
+    const t = stage - 7;
+    const r = 15 + t*1.5;
+    const wingW = 12 + t*4;
+    return `
+      <path d="M50 ${62+r*0.95} Q${50-3} ${62+r+8} ${50-1} ${62+r+14+t} M50 ${62+r*0.95} Q${50+3} ${62+r+8} ${50+5} ${62+r+12+t} M50 ${62+r*0.95} Q${50-5} ${62+r+8} ${50-6} ${62+r+12+t}" stroke="${e.a}" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <path d="M50 ${62+r*0.95} Q50 ${62+r+10} ${50+1} ${62+r+18+t*1.4}" stroke="${e.p}" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M${50-r*0.5} 58 Q${50-r-wingW} ${48-wingW*0.4} ${50-r-wingW*0.8} ${44-wingW*0.4} Q${50-r-wingW*0.4} 56 ${50-r*1.1} 64 L${50-r-wingW*0.2} 72 Q${50-r-wingW*0.6} 68 ${50-r*0.7} 64 Z" fill="${e.p}" stroke="#3a2a2a" stroke-width="1.2"/>
+      <path d="M${50-r*0.6} 60 Q${50-r-wingW*0.6} 52 ${50-r-wingW*0.5} 48" stroke="${e.a}" stroke-width="1.5" fill="none"/>
+      <path d="M${50+r*0.5} 58 Q${50+r+wingW} ${48-wingW*0.4} ${50+r+wingW*0.8} ${44-wingW*0.4} Q${50+r+wingW*0.4} 56 ${50+r*1.1} 64 L${50+r+wingW*0.2} 72 Q${50+r+wingW*0.6} 68 ${50+r*0.7} 64 Z" fill="${e.p}" stroke="#3a2a2a" stroke-width="1.2"/>
+      <path d="M${50+r*0.6} 60 Q${50+r+wingW*0.6} 52 ${50+r+wingW*0.5} 48" stroke="${e.a}" stroke-width="1.5" fill="none"/>
+      <ellipse cx="50" cy="62" rx="${r}" ry="${r*1.1}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.6"/>
+      <ellipse cx="50" cy="66" rx="${r*0.55}" ry="${r*0.7}" fill="${e.s}" opacity="0.85"/>
+      <path d="M${50-r*0.4} ${62-r} Q${50-3} ${62-r-8-t} 50 ${62-r*1.1} Q${50+3} ${62-r-6-t} ${50+r*0.4} ${62-r} Q${50+1} ${62-r-12-t*1.4} ${50-r*0.2} ${62-r-4-t*0.6} Z" fill="${e.a}" stroke="#3a2a2a" stroke-width="1.2"/>
+      <path d="M50 ${62-r-14-t} Q${50-2} ${62-r-18-t*1.2} ${50+2} ${62-r-16-t} Z" fill="${e.s}"/>
+      ${blush(50-r*0.55, 50+r*0.55, 60, 3, e.a)}
+      ${bigEyes(50-r*0.35, 50+r*0.35, 52, 4.5+t*0.3)}
+      <path d="M${50-3} 58 L${50+3} 58 L50 ${58+5+t*0.5} Z" fill="${e.a}" stroke="#3a2a2a" stroke-width="1"/>
+    `;
+  }
+  // 最終形: 巨大なフェニックス（炎の輪+巨翼+羽根の延長）
+  const r = 17, wingW = 22;
+  return `
+    <circle cx="50" cy="62" r="46" fill="${e.a}" opacity="0.25"/>
+    <circle cx="50" cy="62" r="40" fill="${e.p}" opacity="0.2"/>
+    <path d="M50 ${62+r} Q${50-4} ${62+r+10} ${50-2} ${62+r+18} M50 ${62+r} Q${50+4} ${62+r+10} ${50+6} ${62+r+16} M50 ${62+r} Q${50-6} ${62+r+10} ${50-8} ${62+r+15} M50 ${62+r} Q50 ${62+r+12} ${50+1} ${62+r+22} M50 ${62+r} Q${50-9} ${62+r+8} ${50-12} ${62+r+12} M50 ${62+r} Q${50+9} ${62+r+8} ${50+12} ${62+r+12}" stroke="${e.a}" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M50 ${62+r} L50 ${62+r+26}" stroke="${e.p}" stroke-width="3.5" stroke-linecap="round"/>
+    <path d="M${50-r*0.5} 58 Q${50-r-wingW} ${24} ${50-r-wingW*1.2} 50 Q${50-r-wingW*0.4} 56 ${50-r*1.1} 64 L${50-r-wingW*0.2} 72 Q${50-r-wingW*0.6} 68 ${50-r*0.7} 64 Z" fill="${e.p}" stroke="#3a2a2a" stroke-width="1.4"/>
+    <path d="M${50-r*0.6} 60 Q${50-r-wingW*0.7} 40 ${50-r-wingW*0.6} 36" stroke="${e.a}" stroke-width="1.8" fill="none"/>
+    <path d="M${50-r*0.7} 56 Q${50-r-wingW*0.5} 30 ${50-r-wingW*0.3} 26" stroke="${e.a}" stroke-width="1.5" fill="none"/>
+    <path d="M${50+r*0.5} 58 Q${50+r+wingW} ${24} ${50+r+wingW*1.2} 50 Q${50+r+wingW*0.4} 56 ${50+r*1.1} 64 L${50+r+wingW*0.2} 72 Q${50+r+wingW*0.6} 68 ${50+r*0.7} 64 Z" fill="${e.p}" stroke="#3a2a2a" stroke-width="1.4"/>
+    <path d="M${50+r*0.6} 60 Q${50+r+wingW*0.7} 40 ${50+r+wingW*0.6} 36" stroke="${e.a}" stroke-width="1.8" fill="none"/>
+    <path d="M${50+r*0.7} 56 Q${50+r+wingW*0.5} 30 ${50+r+wingW*0.3} 26" stroke="${e.a}" stroke-width="1.5" fill="none"/>
+    <ellipse cx="50" cy="62" rx="${r}" ry="${r*1.1}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.8"/>
+    <ellipse cx="50" cy="66" rx="${r*0.55}" ry="${r*0.75}" fill="${e.s}" opacity="0.9"/>
+    <path d="M${50-r*0.4} ${62-r} Q${50-4} ${62-r-12} 50 ${62-r*1.1} Q${50+4} ${62-r-10} ${50+r*0.4} ${62-r} Q${50+2} ${62-r-18} ${50-r*0.2} ${62-r-6} Z" fill="${e.a}" stroke="#3a2a2a" stroke-width="1.2"/>
+    <path d="M50 ${62-r-16} Q${50-3} ${62-r-22} ${50+3} ${62-r-20} Q50 ${62-r-26} ${50-2} ${62-r-22} Z" fill="${e.s}" stroke="#3a2a2a" stroke-width="0.8"/>
+    <path d="M${50-r*0.5} ${62-r-4} L${50-r*0.7} ${62-r-8}" stroke="${e.a}" stroke-width="2" stroke-linecap="round"/>
+    <path d="M${50+r*0.5} ${62-r-4} L${50+r*0.7} ${62-r-8}" stroke="${e.a}" stroke-width="2" stroke-linecap="round"/>
+    ${blush(50-r*0.55, 50+r*0.55, 60, 3.5, e.a)}
+    ${bigEyes(50-r*0.35, 50+r*0.35, 52, 5)}
+    <path d="M${50-3.5} 58 L${50+3.5} 58 L50 ${58+7} Z" fill="${e.a}" stroke="#3a2a2a" stroke-width="1"/>
+  `;
 }
 
 /* -------- 13. タートル (亀) -------- */
 function drawTurtle(e, stage, pid) {
-  const t = stage - 4;
-  const shellW = 22 + t*2.5;
-  const shellH = 16 + t*1.8;
-  // 甲羅（楕円ドーム）
-  const shell = `<ellipse cx="50" cy="${60}" rx="${shellW}" ry="${shellH}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.8"/>`;
-  // 甲羅の六角パターン
-  const pattern = `<path d="M${50-shellW*0.5} ${60-shellH*0.3} L${50-shellW*0.2} ${60-shellH*0.55} L${50+shellW*0.2} ${60-shellH*0.55} L${50+shellW*0.5} ${60-shellH*0.3} M${50-shellW*0.5} ${60-shellH*0.3} L${50-shellW*0.55} ${60+shellH*0.1} L${50-shellW*0.2} ${60+shellH*0.3} L${50+shellW*0.2} ${60+shellH*0.3} L${50+shellW*0.55} ${60+shellH*0.1} L${50+shellW*0.5} ${60-shellH*0.3} M${50-shellW*0.2} ${60-shellH*0.55} L${50-shellW*0.2} ${60+shellH*0.3} M${50+shellW*0.2} ${60-shellH*0.55} L${50+shellW*0.2} ${60+shellH*0.3} M50 ${60-shellH*0.55} L50 ${60+shellH*0.3}" stroke="#3a2a2a" stroke-width="1" fill="none" opacity="0.7"/>`;
-  // ハイライト
-  const highlight = `<ellipse cx="${50-shellW*0.3}" cy="${60-shellH*0.6}" rx="${shellW*0.25}" ry="${shellH*0.2}" fill="white" opacity="0.35"/>`;
-  // 頭
-  const head = `<ellipse cx="${50+shellW+3}" cy="${60+shellH*0.4}" rx="${7+t*0.4}" ry="${6+t*0.3}" fill="${e.a}" stroke="#3a2a2a" stroke-width="1.4"/>`;
-  // 4本足
-  const legs = `<ellipse cx="${50-shellW*0.7}" cy="${60+shellH+2}" rx="${4+t*0.3}" ry="${3+t*0.2}" fill="${e.a}" stroke="#3a2a2a" stroke-width="1.2"/>
-    <ellipse cx="${50+shellW*0.7}" cy="${60+shellH+2}" rx="${4+t*0.3}" ry="${3+t*0.2}" fill="${e.a}" stroke="#3a2a2a" stroke-width="1.2"/>
-    <ellipse cx="${50-shellW*0.85}" cy="${60+shellH*0.3}" rx="${3.5+t*0.2}" ry="${4+t*0.2}" fill="${e.a}" stroke="#3a2a2a" stroke-width="1.2"/>`;
-  // しっぽ
-  const tail = stage >= 5 ? `<path d="M${50-shellW} ${60+shellH*0.1} L${50-shellW-5-t*0.5} ${60+shellH*0.3} L${50-shellW-3} ${60+shellH*0.5} Z" fill="${e.a}" stroke="#3a2a2a" stroke-width="1"/>` : "";
-  // 顔
-  const headCx = 50+shellW+3, headCy = 60+shellH*0.4;
-  const face = bigEyes(headCx-2.5, headCx+1, headCy-1, 2.5+t*0.15) + smile(headCx, headCy+2, 2);
-  // 王冠（最終形態）
-  const crown = stage >= 9 ? `<path d="M${50-shellW*0.4} ${60-shellH-2} L${50-shellW*0.2} ${60-shellH-6} L${50-shellW*0.05} ${60-shellH-3} L50 ${60-shellH-7} L${50+shellW*0.05} ${60-shellH-3} L${50+shellW*0.2} ${60-shellH-6} L${50+shellW*0.4} ${60-shellH-2} Z" fill="#fff200" stroke="#ff9900" stroke-width="1"/>` : "";
-  return legs + tail + shell + pattern + highlight + crown + head + face;
+  if (stage <= 6) {
+    // ベビー: 小さい子亀（甲羅シンプル）
+    const t = stage - 4;
+    const sw = 16 + t*1.6;
+    const sh = 11 + t*1.2;
+    return `
+      <ellipse cx="${50-sw*0.7}" cy="${60+sh+1}" rx="${3+t*0.2}" ry="${2.5+t*0.15}" fill="${e.a}" stroke="#3a2a2a" stroke-width="1"/>
+      <ellipse cx="${50+sw*0.7}" cy="${60+sh+1}" rx="${3+t*0.2}" ry="${2.5+t*0.15}" fill="${e.a}" stroke="#3a2a2a" stroke-width="1"/>
+      <ellipse cx="${50-sw*0.85}" cy="${60+sh*0.3}" rx="${2.8+t*0.15}" ry="${3+t*0.15}" fill="${e.a}" stroke="#3a2a2a" stroke-width="1"/>
+      <ellipse cx="50" cy="60" rx="${sw}" ry="${sh}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.6"/>
+      <ellipse cx="${50-sw*0.25}" cy="${60-sh*0.5}" rx="${sw*0.25}" ry="${sh*0.2}" fill="white" opacity="0.4"/>
+      <ellipse cx="${50+sw+2}" cy="${60+sh*0.4}" rx="${5+t*0.3}" ry="${4.5+t*0.2}" fill="${e.a}" stroke="#3a2a2a" stroke-width="1.2"/>
+      ${bigEyes(50+sw+1, 50+sw+4, 60+sh*0.3-1, 2+t*0.15)}
+      ${smile(50+sw+2, 60+sh*0.4+2, 1.5)}
+    `;
+  }
+  if (stage <= 9) {
+    // 進化形: 六角模様の甲羅を持つ立派な亀
+    const t = stage - 7;
+    const sw = 22 + t*1.5;
+    const sh = 16 + t*1;
+    return `
+      <ellipse cx="${50-sw*0.7}" cy="${60+sh+2}" rx="${4+t*0.3}" ry="${3+t*0.2}" fill="${e.a}" stroke="#3a2a2a" stroke-width="1.2"/>
+      <ellipse cx="${50+sw*0.7}" cy="${60+sh+2}" rx="${4+t*0.3}" ry="${3+t*0.2}" fill="${e.a}" stroke="#3a2a2a" stroke-width="1.2"/>
+      <ellipse cx="${50-sw*0.85}" cy="${60+sh*0.3}" rx="${3.5+t*0.2}" ry="${4+t*0.2}" fill="${e.a}" stroke="#3a2a2a" stroke-width="1.2"/>
+      <path d="M${50-sw} ${60+sh*0.1} L${50-sw-5-t*0.5} ${60+sh*0.3} L${50-sw-3} ${60+sh*0.5} Z" fill="${e.a}" stroke="#3a2a2a" stroke-width="1"/>
+      <ellipse cx="50" cy="60" rx="${sw}" ry="${sh}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.8"/>
+      <path d="M${50-sw*0.5} ${60-sh*0.3} L${50-sw*0.2} ${60-sh*0.55} L${50+sw*0.2} ${60-sh*0.55} L${50+sw*0.5} ${60-sh*0.3} M${50-sw*0.5} ${60-sh*0.3} L${50-sw*0.55} ${60+sh*0.1} L${50-sw*0.2} ${60+sh*0.3} L${50+sw*0.2} ${60+sh*0.3} L${50+sw*0.55} ${60+sh*0.1} L${50+sw*0.5} ${60-sh*0.3} M${50-sw*0.2} ${60-sh*0.55} L${50-sw*0.2} ${60+sh*0.3} M${50+sw*0.2} ${60-sh*0.55} L${50+sw*0.2} ${60+sh*0.3} M50 ${60-sh*0.55} L50 ${60+sh*0.3}" stroke="#3a2a2a" stroke-width="1" fill="none" opacity="0.7"/>
+      <ellipse cx="${50-sw*0.3}" cy="${60-sh*0.6}" rx="${sw*0.25}" ry="${sh*0.2}" fill="white" opacity="0.35"/>
+      <ellipse cx="${50+sw+3}" cy="${60+sh*0.4}" rx="${7+t*0.4}" ry="${6+t*0.3}" fill="${e.a}" stroke="#3a2a2a" stroke-width="1.4"/>
+      ${bigEyes(50+sw+1, 50+sw+4.5, 60+sh*0.4-1, 2.5+t*0.2)}
+      ${smile(50+sw+3, 60+sh*0.4+2, 2)}
+    `;
+  }
+  // 最終形: 古代の亀（甲羅の上に木が生える）
+  const sw = 24, sh = 18;
+  return `
+    <ellipse cx="${50-sw*0.7}" cy="${60+sh+2}" rx="5" ry="4" fill="${e.a}" stroke="#3a2a2a" stroke-width="1.4"/>
+    <ellipse cx="${50+sw*0.7}" cy="${60+sh+2}" rx="5" ry="4" fill="${e.a}" stroke="#3a2a2a" stroke-width="1.4"/>
+    <ellipse cx="${50-sw*0.85}" cy="${60+sh*0.3}" rx="4.5" ry="5" fill="${e.a}" stroke="#3a2a2a" stroke-width="1.4"/>
+    <path d="M${50-sw} ${60+sh*0.1} L${50-sw-8} ${60+sh*0.4} L${50-sw-4} ${60+sh*0.6} Z" fill="${e.a}" stroke="#3a2a2a" stroke-width="1"/>
+    <ellipse cx="50" cy="60" rx="${sw}" ry="${sh}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="2"/>
+    <path d="M${50-sw*0.5} ${60-sh*0.3} L${50-sw*0.2} ${60-sh*0.55} L${50+sw*0.2} ${60-sh*0.55} L${50+sw*0.5} ${60-sh*0.3} M${50-sw*0.5} ${60-sh*0.3} L${50-sw*0.55} ${60+sh*0.1} L${50-sw*0.2} ${60+sh*0.3} L${50+sw*0.2} ${60+sh*0.3} L${50+sw*0.55} ${60+sh*0.1} L${50+sw*0.5} ${60-sh*0.3} M${50-sw*0.2} ${60-sh*0.55} L${50-sw*0.2} ${60+sh*0.3} M${50+sw*0.2} ${60-sh*0.55} L${50+sw*0.2} ${60+sh*0.3} M50 ${60-sh*0.55} L50 ${60+sh*0.3}" stroke="#3a2a2a" stroke-width="1" fill="none" opacity="0.7"/>
+    <ellipse cx="${50-sw*0.3}" cy="${60-sh*0.6}" rx="${sw*0.25}" ry="${sh*0.2}" fill="white" opacity="0.35"/>
+    <rect x="${50-2}" y="${60-sh-2}" width="4" height="14" fill="#8b5a3c" stroke="#3a2a2a" stroke-width="1"/>
+    <circle cx="50" cy="${60-sh-8}" r="11" fill="#3ec46e" stroke="#3a2a2a" stroke-width="1.4"/>
+    <circle cx="${50-7}" cy="${60-sh-4}" r="7" fill="#3ec46e" stroke="#3a2a2a" stroke-width="1.4"/>
+    <circle cx="${50+7}" cy="${60-sh-4}" r="7" fill="#3ec46e" stroke="#3a2a2a" stroke-width="1.4"/>
+    <circle cx="${50-5}" cy="${60-sh-10}" r="1.5" fill="#ff4d4d"/>
+    <circle cx="${50+6}" cy="${60-sh-8}" r="1.5" fill="#ff4d4d"/>
+    <circle cx="50" cy="${60-sh-4}" r="1.5" fill="#fff200"/>
+    <ellipse cx="${50+sw+3}" cy="${60+sh*0.4}" rx="8" ry="7" fill="${e.a}" stroke="#3a2a2a" stroke-width="1.6"/>
+    <path d="M${50+sw+1} ${60+sh*0.4-7} L${50+sw} ${60+sh*0.4-10} L${50+sw+4} ${60+sh*0.4-8} Z" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.8"/>
+    ${bigEyes(50+sw+1, 50+sw+5, 60+sh*0.4-1, 3)}
+    ${smile(50+sw+3, 60+sh*0.4+2.5, 2.2)}
+  `;
 }
 
 /* -------- 14. クラゲ -------- */
 function drawJellyfish(e, stage, pid) {
-  const t = stage - 4;
-  const bellW = 22 + t*2.2;
-  const bellH = 16 + t*1.5;
-  // ベル（半円）
-  const bell = `<path d="M${50-bellW} 56 Q${50-bellW} ${56-bellH*1.4} 50 ${56-bellH*1.4} Q${50+bellW} ${56-bellH*1.4} ${50+bellW} 56 Q${50+bellW*0.7} 60 ${50+bellW*0.4} 56 Q${50+bellW*0.1} 60 ${50-bellW*0.2} 56 Q${50-bellW*0.5} 60 ${50-bellW*0.8} 56 Q${50-bellW*0.9} 58 ${50-bellW} 56 Z" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.6" opacity="0.92"/>`;
-  // ベルのハイライト
-  const highlight = `<ellipse cx="${50-bellW*0.3}" cy="${50-bellH*0.6}" rx="${bellW*0.3}" ry="${bellH*0.5}" fill="white" opacity="0.4"/>`;
-  // 触手
-  const tentacles = `
-    <path d="M${50-bellW*0.7} 56 Q${50-bellW*0.85} ${66+t} ${50-bellW*0.6} ${72+t*1.5} Q${50-bellW*0.45} ${78+t*1.8} ${50-bellW*0.7} ${82+t*2}" stroke="${e.s}" stroke-width="${2+t*0.2}" fill="none" stroke-linecap="round"/>
-    <path d="M${50-bellW*0.35} 58 Q${50-bellW*0.5} ${68+t} ${50-bellW*0.2} ${76+t*1.5} Q${50-bellW*0.4} ${82+t*1.8} ${50-bellW*0.15} ${88+t*2}" stroke="${e.s}" stroke-width="${2+t*0.2}" fill="none" stroke-linecap="round"/>
-    <path d="M50 58 Q${50+2} ${70+t} ${50-1} ${78+t*1.5} Q${50+2} ${84+t*1.8} ${50} ${90+t*2}" stroke="${e.a}" stroke-width="${2.4+t*0.2}" fill="none" stroke-linecap="round"/>
-    <path d="M${50+bellW*0.35} 58 Q${50+bellW*0.5} ${68+t} ${50+bellW*0.2} ${76+t*1.5} Q${50+bellW*0.4} ${82+t*1.8} ${50+bellW*0.15} ${88+t*2}" stroke="${e.s}" stroke-width="${2+t*0.2}" fill="none" stroke-linecap="round"/>
-    <path d="M${50+bellW*0.7} 56 Q${50+bellW*0.85} ${66+t} ${50+bellW*0.6} ${72+t*1.5} Q${50+bellW*0.45} ${78+t*1.8} ${50+bellW*0.7} ${82+t*2}" stroke="${e.s}" stroke-width="${2+t*0.2}" fill="none" stroke-linecap="round"/>`;
-  // ベル内の発光（最終形態）
-  const glow = stage >= 7 ? `<circle cx="50" cy="${50-bellH*0.4}" r="${4+t*0.5}" fill="${e.a}" opacity="0.55"/>` : "";
-  // 顔
-  const eyeCy = 50 - bellH*0.3;
-  const mouthCy = 50 - bellH*0.05;
-  return tentacles + bell + highlight + glow + bigEyes(46, 54, eyeCy, 3+t*0.25) + smile(50, mouthCy, 3);
+  if (stage <= 6) {
+    // ベビー: 小さなクラゲ（触手3本）
+    const t = stage - 4;
+    const w = 14 + t*1.5, h = 11 + t*1.2;
+    return `
+      <path d="M${50-w*0.6} 58 Q${50-w*0.65} ${66+t} ${50-w*0.5} ${72+t*1.5}" stroke="${e.s}" stroke-width="${1.8+t*0.2}" fill="none" stroke-linecap="round"/>
+      <path d="M50 58 Q${50+1} ${68+t} ${50} ${76+t*1.5}" stroke="${e.a}" stroke-width="${2+t*0.2}" fill="none" stroke-linecap="round"/>
+      <path d="M${50+w*0.6} 58 Q${50+w*0.65} ${66+t} ${50+w*0.5} ${72+t*1.5}" stroke="${e.s}" stroke-width="${1.8+t*0.2}" fill="none" stroke-linecap="round"/>
+      <path d="M${50-w} 56 Q${50-w} ${56-h*1.3} 50 ${56-h*1.3} Q${50+w} ${56-h*1.3} ${50+w} 56 Q${50+w*0.5} 60 ${50-w*0.5} 60 Z" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.4" opacity="0.92"/>
+      <ellipse cx="${50-w*0.3}" cy="${50-h*0.5}" rx="${w*0.3}" ry="${h*0.45}" fill="white" opacity="0.4"/>
+      ${bigEyes(46, 54, 50-h*0.2, 2.5+t*0.2)}
+      ${smile(50, 50+h*0.05, 2)}
+    `;
+  }
+  if (stage <= 9) {
+    // 進化形: 大きなクラゲ（触手5本+発光）
+    const t = stage - 7;
+    const w = 22 + t*1.5, h = 16 + t;
+    return `
+      <path d="M${50-w*0.7} 56 Q${50-w*0.85} ${66+t} ${50-w*0.6} ${72+t*1.5} Q${50-w*0.45} ${78+t*1.8} ${50-w*0.7} ${82+t*2}" stroke="${e.s}" stroke-width="${2+t*0.2}" fill="none" stroke-linecap="round"/>
+      <path d="M${50-w*0.35} 58 Q${50-w*0.5} ${68+t} ${50-w*0.2} ${76+t*1.5} Q${50-w*0.4} ${82+t*1.8} ${50-w*0.15} ${88+t*2}" stroke="${e.s}" stroke-width="${2+t*0.2}" fill="none" stroke-linecap="round"/>
+      <path d="M50 58 Q${50+2} ${70+t} ${50-1} ${78+t*1.5} Q${50+2} ${84+t*1.8} 50 ${90+t*2}" stroke="${e.a}" stroke-width="${2.4+t*0.2}" fill="none" stroke-linecap="round"/>
+      <path d="M${50+w*0.35} 58 Q${50+w*0.5} ${68+t} ${50+w*0.2} ${76+t*1.5} Q${50+w*0.4} ${82+t*1.8} ${50+w*0.15} ${88+t*2}" stroke="${e.s}" stroke-width="${2+t*0.2}" fill="none" stroke-linecap="round"/>
+      <path d="M${50+w*0.7} 56 Q${50+w*0.85} ${66+t} ${50+w*0.6} ${72+t*1.5} Q${50+w*0.45} ${78+t*1.8} ${50+w*0.7} ${82+t*2}" stroke="${e.s}" stroke-width="${2+t*0.2}" fill="none" stroke-linecap="round"/>
+      <path d="M${50-w} 56 Q${50-w} ${56-h*1.4} 50 ${56-h*1.4} Q${50+w} ${56-h*1.4} ${50+w} 56 Q${50+w*0.7} 60 ${50+w*0.4} 56 Q${50+w*0.1} 60 ${50-w*0.2} 56 Q${50-w*0.5} 60 ${50-w*0.8} 56 Q${50-w*0.9} 58 ${50-w} 56 Z" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.6" opacity="0.92"/>
+      <ellipse cx="${50-w*0.3}" cy="${50-h*0.6}" rx="${w*0.3}" ry="${h*0.5}" fill="white" opacity="0.4"/>
+      <circle cx="50" cy="${50-h*0.4}" r="${4+t*0.5}" fill="${e.a}" opacity="0.55"/>
+      ${bigEyes(46, 54, 50-h*0.3, 3+t*0.25)}
+      ${smile(50, 50-h*0.05, 3)}
+    `;
+  }
+  // 最終形: 光るクラゲ王（王冠+大量の触手+発光リング）
+  const w = 26, h = 18;
+  return `
+    <circle cx="50" cy="55" r="38" fill="${e.a}" opacity="0.2"/>
+    <path d="M${50-w*0.8} 56 Q${50-w*0.95} 72 ${50-w*0.7} 86 Q${50-w*0.55} 92 ${50-w*0.8} 96" stroke="${e.s}" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <path d="M${50-w*0.5} 58 Q${50-w*0.6} 72 ${50-w*0.4} 88 Q${50-w*0.55} 94 ${50-w*0.35} 96" stroke="${e.s}" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <path d="M${50-w*0.2} 60 Q${50-w*0.3} 76 ${50-w*0.1} 90" stroke="${e.a}" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+    <path d="M${50+w*0.05} 60 Q${50+w*0.15} 80 ${50+w*0.05} 94" stroke="${e.a}" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+    <path d="M${50+w*0.3} 58 Q${50+w*0.4} 76 ${50+w*0.25} 92" stroke="${e.s}" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <path d="M${50+w*0.5} 58 Q${50+w*0.6} 70 ${50+w*0.45} 86 Q${50+w*0.55} 92 ${50+w*0.4} 96" stroke="${e.s}" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <path d="M${50+w*0.8} 56 Q${50+w*0.95} 72 ${50+w*0.75} 86 Q${50+w*0.6} 92 ${50+w*0.85} 96" stroke="${e.s}" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <path d="M${50-w} 56 Q${50-w} ${56-h*1.5} 50 ${56-h*1.5} Q${50+w} ${56-h*1.5} ${50+w} 56 Q${50+w*0.7} 60 ${50+w*0.4} 56 Q${50+w*0.1} 60 ${50-w*0.2} 56 Q${50-w*0.5} 60 ${50-w*0.8} 56 Q${50-w*0.9} 58 ${50-w} 56 Z" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.8" opacity="0.94"/>
+    <ellipse cx="${50-w*0.3}" cy="${50-h*0.7}" rx="${w*0.3}" ry="${h*0.55}" fill="white" opacity="0.45"/>
+    <circle cx="50" cy="${50-h*0.4}" r="6" fill="${e.a}" opacity="0.7"/>
+    <circle cx="50" cy="${50-h*0.4}" r="3" fill="white" opacity="0.7"/>
+    <circle cx="${50-w*0.55}" cy="${50-h*0.3}" r="2" fill="${e.a}" opacity="0.7"/>
+    <circle cx="${50+w*0.55}" cy="${50-h*0.3}" r="2" fill="${e.a}" opacity="0.7"/>
+    <path d="M${50-7} ${56-h*1.5-2} L${50-5} ${56-h*1.5-7} L${50-3} ${56-h*1.5-3} L50 ${56-h*1.5-9} L${50+3} ${56-h*1.5-3} L${50+5} ${56-h*1.5-7} L${50+7} ${56-h*1.5-2} Z" fill="#fff200" stroke="#ff9900" stroke-width="0.8"/>
+    <circle cx="50" cy="${56-h*1.5-5}" r="1.5" fill="#ff4d4d"/>
+    ${bigEyes(46, 54, 50-h*0.35, 4)}
+    ${smile(50, 50-h*0.05, 3.5)}
+  `;
 }
 
 /* -------- 15. トカゲ -------- */
 function drawLizard(e, stage, pid) {
-  const t = stage - 4;
-  const bodyW = 14 + t*1.8;
-  const bodyH = 10 + t*1;
-  // 横長の体
-  const body = `<ellipse cx="50" cy="62" rx="${bodyW}" ry="${bodyH}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.6"/>`;
-  // 頭（細長い）
-  const head = `<ellipse cx="${50+bodyW+2}" cy="60" rx="${8+t*0.5}" ry="${7+t*0.4}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.6"/>`;
-  // 4本足
-  const legs = `<ellipse cx="${50-bodyW*0.6}" cy="${62+bodyH+1}" rx="3" ry="${3+t*0.2}" fill="${e.s}" stroke="#3a2a2a" stroke-width="1"/>
-    <ellipse cx="${50+bodyW*0.5}" cy="${62+bodyH+1}" rx="3" ry="${3+t*0.2}" fill="${e.s}" stroke="#3a2a2a" stroke-width="1"/>
-    <ellipse cx="${50-bodyW*0.6}" cy="${62-bodyH-1}" rx="3" ry="${2.5+t*0.15}" fill="${e.s}" stroke="#3a2a2a" stroke-width="1"/>
-    <ellipse cx="${50+bodyW*0.5}" cy="${62-bodyH-1}" rx="3" ry="${2.5+t*0.15}" fill="${e.s}" stroke="#3a2a2a" stroke-width="1"/>`;
-  // 長い尻尾（カール）
-  const tail = `<path d="M${50-bodyW} 62 Q${50-bodyW-8-t} ${64+t} ${50-bodyW-12-t*1.2} ${56+t*0.5} Q${50-bodyW-14-t*1.4} ${50-t} ${50-bodyW-8-t*0.6} ${48-t}" stroke="url(#${pid})" stroke-width="${5+t*0.4}" fill="none" stroke-linecap="round"/>`;
-  // 背中のトゲ
-  const spikes = stage >= 6 ? `<path d="M${50-bodyW*0.5} ${62-bodyH} L${50-bodyW*0.45} ${62-bodyH-4-t*0.3} L${50-bodyW*0.3} ${62-bodyH+1} Z M${50-bodyW*0.15} ${62-bodyH} L${50-bodyW*0.1} ${62-bodyH-5-t*0.3} L${50+bodyW*0.05} ${62-bodyH+1} Z M${50+bodyW*0.2} ${62-bodyH} L${50+bodyW*0.25} ${62-bodyH-5-t*0.3} L${50+bodyW*0.4} ${62-bodyH+1} Z" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.8"/>` : "";
-  // 舌
-  const tongue = stage >= 7 ? `<path d="M${50+bodyW+8+t*0.5} 60 L${50+bodyW+14+t} ${58+t*0.4} L${50+bodyW+14+t} ${62-t*0.4} Z" fill="#ff4d80" stroke="#3a2a2a" stroke-width="0.6"/>
-    <path d="M${50+bodyW+14+t} 60 L${50+bodyW+18+t*1.2} ${58+t*0.4} M${50+bodyW+14+t} 60 L${50+bodyW+18+t*1.2} ${62-t*0.4}" stroke="#ff4d80" stroke-width="1.4" fill="none" stroke-linecap="round"/>` : "";
-  // 顔（頭の上）
-  const headCx = 50+bodyW+2;
-  const face = bigEyes(headCx-2, headCx+2, 58, 3+t*0.2);
-  return tail + legs + body + head + spikes + face + tongue;
+  if (stage <= 6) {
+    // ベビー: 小さなヤモリ
+    const t = stage - 4;
+    const w = 11 + t*1.2, h = 8 + t*0.8;
+    return `
+      <path d="M${50-w} 62 Q${50-w-6-t} ${64+t*0.5} ${50-w-10-t} ${58+t*0.3}" stroke="url(#${pid})" stroke-width="${3.5+t*0.3}" fill="none" stroke-linecap="round"/>
+      <ellipse cx="${50-w*0.5}" cy="${62+h+1}" rx="2.5" ry="2.5" fill="${e.s}" stroke="#3a2a2a" stroke-width="0.8"/>
+      <ellipse cx="${50+w*0.4}" cy="${62+h+1}" rx="2.5" ry="2.5" fill="${e.s}" stroke="#3a2a2a" stroke-width="0.8"/>
+      <ellipse cx="50" cy="62" rx="${w}" ry="${h}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.4"/>
+      <ellipse cx="${50+w+1}" cy="60" rx="${6+t*0.3}" ry="${5+t*0.3}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.4"/>
+      ${bigEyes(50+w-1, 50+w+3, 58, 2.5+t*0.15)}
+      ${smile(50+w+1, 62, 1.5)}
+    `;
+  }
+  if (stage <= 9) {
+    // 進化形: トカゲ（フリル+トゲ+4本足+長い舌）
+    const t = stage - 7;
+    const w = 14 + t*1.4, h = 10 + t*0.8;
+    return `
+      <path d="M${50-w} 62 Q${50-w-8-t} ${64+t} ${50-w-12-t*1.2} ${56+t*0.5} Q${50-w-14-t*1.4} ${50-t} ${50-w-8-t*0.6} ${48-t}" stroke="url(#${pid})" stroke-width="${5+t*0.4}" fill="none" stroke-linecap="round"/>
+      <ellipse cx="${50-w*0.6}" cy="${62+h+1}" rx="3" ry="${3+t*0.2}" fill="${e.s}" stroke="#3a2a2a" stroke-width="1"/>
+      <ellipse cx="${50+w*0.5}" cy="${62+h+1}" rx="3" ry="${3+t*0.2}" fill="${e.s}" stroke="#3a2a2a" stroke-width="1"/>
+      <ellipse cx="${50-w*0.6}" cy="${62-h-1}" rx="3" ry="${2.5+t*0.15}" fill="${e.s}" stroke="#3a2a2a" stroke-width="1"/>
+      <ellipse cx="${50+w*0.5}" cy="${62-h-1}" rx="3" ry="${2.5+t*0.15}" fill="${e.s}" stroke="#3a2a2a" stroke-width="1"/>
+      <ellipse cx="50" cy="62" rx="${w}" ry="${h}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.6"/>
+      <path d="M${50-w*0.5} ${62-h} L${50-w*0.45} ${62-h-4-t*0.3} L${50-w*0.3} ${62-h+1} Z M${50-w*0.15} ${62-h} L${50-w*0.1} ${62-h-5-t*0.3} L${50+w*0.05} ${62-h+1} Z M${50+w*0.2} ${62-h} L${50+w*0.25} ${62-h-5-t*0.3} L${50+w*0.4} ${62-h+1} Z" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.8"/>
+      <ellipse cx="${50+w+2}" cy="60" rx="${8+t*0.5}" ry="${7+t*0.4}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.6"/>
+      <path d="M${50+w-2} ${60-7} Q${50+w+2} ${60-9} ${50+w+6} ${60-3} L${50+w+6} ${60-1}" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.8" opacity="0.7"/>
+      <path d="M${50+w-2} ${60+7} Q${50+w+2} ${60+9} ${50+w+6} ${60+3}" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.8" opacity="0.7"/>
+      <path d="M${50+w+8+t*0.5} 60 L${50+w+14+t} ${58+t*0.4} L${50+w+14+t} ${62-t*0.4} Z" fill="#ff4d80" stroke="#3a2a2a" stroke-width="0.6"/>
+      <path d="M${50+w+14+t} 60 L${50+w+18+t*1.2} ${58+t*0.4} M${50+w+14+t} 60 L${50+w+18+t*1.2} ${62-t*0.4}" stroke="#ff4d80" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      ${bigEyes(50+w, 50+w+4, 58, 3+t*0.2)}
+    `;
+  }
+  // 最終形: 翼の生えたドレイク（小型ドラゴン）
+  const w = 16, h = 11;
+  return `
+    <path d="M${50-w} 62 Q${50-w-12} ${66} ${50-w-16} ${56} Q${50-w-20} ${44} ${50-w-12} ${42} Q${50-w-8} ${48} ${50-w-10} ${56}" stroke="url(#${pid})" stroke-width="6" fill="none" stroke-linecap="round"/>
+    <path d="M${50-w-12} 40 L${50-w-15} 36 L${50-w-12} 44 Z" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.8"/>
+    <ellipse cx="${50-w*0.6}" cy="${62+h+2}" rx="3.5" ry="3" fill="${e.s}" stroke="#3a2a2a" stroke-width="1.2"/>
+    <ellipse cx="${50+w*0.5}" cy="${62+h+2}" rx="3.5" ry="3" fill="${e.s}" stroke="#3a2a2a" stroke-width="1.2"/>
+    <ellipse cx="${50-w*0.6}" cy="${62-h-2}" rx="3.5" ry="2.5" fill="${e.s}" stroke="#3a2a2a" stroke-width="1.2"/>
+    <ellipse cx="${50+w*0.5}" cy="${62-h-2}" rx="3.5" ry="2.5" fill="${e.s}" stroke="#3a2a2a" stroke-width="1.2"/>
+    <path d="M${50-w*0.2} ${62-h-2} Q${50-w*0.5} ${62-h-14} ${50-w-4} ${62-h-10} Q${50-w*0.5} ${62-h-6} ${50-w*0.1} ${62-h-1} Z" fill="${e.s}" stroke="#3a2a2a" stroke-width="1.4"/>
+    <path d="M${50+w*0.1} ${62-h-2} Q${50+w*0.4} ${62-h-14} ${50+w+4} ${62-h-10} Q${50+w*0.4} ${62-h-6} ${50+w*0.05} ${62-h-1} Z" fill="${e.s}" stroke="#3a2a2a" stroke-width="1.4"/>
+    <ellipse cx="50" cy="62" rx="${w}" ry="${h}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.8"/>
+    <path d="M${50-w*0.5} ${62-h} L${50-w*0.45} ${62-h-7} L${50-w*0.3} ${62-h+1} Z M${50-w*0.15} ${62-h} L${50-w*0.1} ${62-h-9} L${50+w*0.05} ${62-h+1} Z M${50+w*0.2} ${62-h} L${50+w*0.25} ${62-h-9} L${50+w*0.4} ${62-h+1} Z" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.9"/>
+    <ellipse cx="${50+w+3}" cy="60" rx="9" ry="8" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.8"/>
+    <path d="M${50+w-1} ${60-8} L${50+w-3} ${60-13} L${50+w+1} ${60-9} Z" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.9"/>
+    <path d="M${50+w+6} ${60-8} L${50+w+8} ${60-13} L${50+w+4} ${60-9} Z" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.9"/>
+    <path d="M${50+w+10} 60 L${50+w+16} ${58} L${50+w+16} ${62} Z" fill="#ff4d80" stroke="#3a2a2a" stroke-width="0.6"/>
+    <path d="M${50+w+16} 60 L${50+w+20} ${58} M${50+w+16} 60 L${50+w+20} ${62}" stroke="#ff4d80" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+    ${bigEyes(50+w+1, 50+w+5, 58, 3.5)}
+    <path d="M${50+w-2} 64 L${50+w-1} 66 L${50+w+1} 64 Z" fill="white" stroke="#3a2a2a" stroke-width="0.4"/>
+  `;
 }
 
 /* -------- 16. クラブ (カニ) -------- */
 function drawCrab(e, stage, pid) {
-  const t = stage - 4;
-  const bodyW = 18 + t*2;
-  const bodyH = 11 + t*1;
-  // 横長楕円の甲羅
-  const body = `<ellipse cx="50" cy="62" rx="${bodyW}" ry="${bodyH}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.6"/>`;
-  // 甲羅の縁
-  const trim = `<path d="M${50-bodyW} 62 Q50 ${62+bodyH*0.3} ${50+bodyW} 62" stroke="${e.s}" stroke-width="1.5" fill="none" opacity="0.7"/>`;
-  // 大きなハサミ
-  const clawSize = 5 + t*0.6;
-  const claws = `
-    <path d="M${50-bodyW-4} ${62-bodyH-2} Q${50-bodyW-10-t} ${62-bodyH-8-t} ${50-bodyW-14-t*1.2} ${62-bodyH-4-t*0.4}" stroke="url(#${pid})" stroke-width="${4+t*0.3}" fill="none" stroke-linecap="round"/>
-    <path d="M${50-bodyW-14-t*1.2} ${62-bodyH-4-t*0.4} L${50-bodyW-22-t*1.5} ${62-bodyH-8-t*0.6} L${50-bodyW-18-t*1.4} ${62-bodyH+2-t*0.2} L${50-bodyW-14-t*1.2} ${62-bodyH-4-t*0.4} Z" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.4"/>
-    <path d="M${50-bodyW-22-t*1.5} ${62-bodyH-8-t*0.6} L${50-bodyW-18-t*1.4} ${62-bodyH-5-t*0.4}" stroke="#3a2a2a" stroke-width="1.2" fill="none"/>
-    <path d="M${50+bodyW+4} ${62-bodyH-2} Q${50+bodyW+10+t} ${62-bodyH-8-t} ${50+bodyW+14+t*1.2} ${62-bodyH-4-t*0.4}" stroke="url(#${pid})" stroke-width="${4+t*0.3}" fill="none" stroke-linecap="round"/>
-    <path d="M${50+bodyW+14+t*1.2} ${62-bodyH-4-t*0.4} L${50+bodyW+22+t*1.5} ${62-bodyH-8-t*0.6} L${50+bodyW+18+t*1.4} ${62-bodyH+2-t*0.2} L${50+bodyW+14+t*1.2} ${62-bodyH-4-t*0.4} Z" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.4"/>
-    <path d="M${50+bodyW+22+t*1.5} ${62-bodyH-8-t*0.6} L${50+bodyW+18+t*1.4} ${62-bodyH-5-t*0.4}" stroke="#3a2a2a" stroke-width="1.2" fill="none"/>`;
-  // 足 (側面に3本ずつ)
-  const legs = stage >= 5 ? `
-    <path d="M${50-bodyW*0.7} ${62+bodyH-2} L${50-bodyW-3} ${62+bodyH+4+t*0.3}" stroke="#3a2a2a" stroke-width="2" stroke-linecap="round"/>
-    <path d="M${50-bodyW*0.3} ${62+bodyH-1} L${50-bodyW*0.3-3} ${62+bodyH+6+t*0.4}" stroke="#3a2a2a" stroke-width="2" stroke-linecap="round"/>
-    <path d="M${50-bodyW*0.7} ${62+bodyH-4} L${50-bodyW-5} ${62+bodyH-1+t*0.2}" stroke="#3a2a2a" stroke-width="2" stroke-linecap="round"/>
-    <path d="M${50+bodyW*0.7} ${62+bodyH-2} L${50+bodyW+3} ${62+bodyH+4+t*0.3}" stroke="#3a2a2a" stroke-width="2" stroke-linecap="round"/>
-    <path d="M${50+bodyW*0.3} ${62+bodyH-1} L${50+bodyW*0.3+3} ${62+bodyH+6+t*0.4}" stroke="#3a2a2a" stroke-width="2" stroke-linecap="round"/>
-    <path d="M${50+bodyW*0.7} ${62+bodyH-4} L${50+bodyW+5} ${62+bodyH-1+t*0.2}" stroke="#3a2a2a" stroke-width="2" stroke-linecap="round"/>` : "";
-  // ストーク目 (柄のついた目)
-  const stalkEyes = `
-    <line x1="${50-4}" y1="${62-bodyH*0.6}" x2="${50-4}" y2="${62-bodyH-3-t*0.4}" stroke="#3a2a2a" stroke-width="1.4"/>
-    <line x1="${50+4}" y1="${62-bodyH*0.6}" x2="${50+4}" y2="${62-bodyH-3-t*0.4}" stroke="#3a2a2a" stroke-width="1.4"/>
-    <circle cx="${50-4}" cy="${62-bodyH-3-t*0.4}" r="${3+t*0.15}" fill="white" stroke="#3a2a2a" stroke-width="1.2"/>
-    <circle cx="${50+4}" cy="${62-bodyH-3-t*0.4}" r="${3+t*0.15}" fill="white" stroke="#3a2a2a" stroke-width="1.2"/>
-    <circle cx="${50-4}" cy="${62-bodyH-3-t*0.4}" r="${1.5+t*0.1}" fill="#222"/>
-    <circle cx="${50+4}" cy="${62-bodyH-3-t*0.4}" r="${1.5+t*0.1}" fill="#222"/>`;
-  // 口
-  const mouth = `<path d="M${50-4} ${62+bodyH*0.2} Q50 ${62+bodyH*0.45} ${50+4} ${62+bodyH*0.2}" stroke="#3a2a2a" stroke-width="1.6" fill="none" stroke-linecap="round"/>`;
-  // 泡 (最終)
-  const bubbles = stage >= 9 ? `<circle cx="20" cy="30" r="2.5" fill="${e.s}" stroke="#3a2a2a" stroke-width="0.5" opacity="0.8"/>
-    <circle cx="80" cy="28" r="2" fill="${e.s}" stroke="#3a2a2a" stroke-width="0.5" opacity="0.8"/>` : "";
-  return legs + claws + body + trim + stalkEyes + mouth + bubbles;
+  if (stage <= 6) {
+    // ベビー: 小さいカニ（ハサミちっちゃい）
+    const t = stage - 4;
+    const w = 13 + t*1.5, h = 9 + t*0.8;
+    return `
+      <path d="M${50-w*0.7} ${62+h-1} L${50-w-2} ${62+h+3} M${50-w*0.7} ${62+h-3} L${50-w-3} ${62+h-1}" stroke="#3a2a2a" stroke-width="1.6" stroke-linecap="round"/>
+      <path d="M${50+w*0.7} ${62+h-1} L${50+w+2} ${62+h+3} M${50+w*0.7} ${62+h-3} L${50+w+3} ${62+h-1}" stroke="#3a2a2a" stroke-width="1.6" stroke-linecap="round"/>
+      <circle cx="${50-w-4}" cy="${62-h-1}" r="${3+t*0.2}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.2"/>
+      <circle cx="${50+w+4}" cy="${62-h-1}" r="${3+t*0.2}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.2"/>
+      <ellipse cx="50" cy="62" rx="${w}" ry="${h}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.4"/>
+      <line x1="${50-3}" y1="${62-h*0.5}" x2="${50-3}" y2="${62-h-2}" stroke="#3a2a2a" stroke-width="1.2"/>
+      <line x1="${50+3}" y1="${62-h*0.5}" x2="${50+3}" y2="${62-h-2}" stroke="#3a2a2a" stroke-width="1.2"/>
+      <circle cx="${50-3}" cy="${62-h-2}" r="2" fill="white" stroke="#3a2a2a" stroke-width="0.9"/>
+      <circle cx="${50+3}" cy="${62-h-2}" r="2" fill="white" stroke="#3a2a2a" stroke-width="0.9"/>
+      <circle cx="${50-3}" cy="${62-h-2}" r="1" fill="#222"/>
+      <circle cx="${50+3}" cy="${62-h-2}" r="1" fill="#222"/>
+      ${smile(50, 62+h*0.3, 2.5)}
+    `;
+  }
+  if (stage <= 9) {
+    // 進化形: 大きなハサミ+6本足のカニ
+    const t = stage - 7;
+    const w = 18 + t*1.5, h = 11 + t*0.8;
+    return `
+      <path d="M${50-w*0.7} ${62+h-2} L${50-w-3} ${62+h+4+t*0.3}" stroke="#3a2a2a" stroke-width="2" stroke-linecap="round"/>
+      <path d="M${50-w*0.3} ${62+h-1} L${50-w*0.3-3} ${62+h+6+t*0.4}" stroke="#3a2a2a" stroke-width="2" stroke-linecap="round"/>
+      <path d="M${50-w*0.7} ${62+h-4} L${50-w-5} ${62+h-1+t*0.2}" stroke="#3a2a2a" stroke-width="2" stroke-linecap="round"/>
+      <path d="M${50+w*0.7} ${62+h-2} L${50+w+3} ${62+h+4+t*0.3}" stroke="#3a2a2a" stroke-width="2" stroke-linecap="round"/>
+      <path d="M${50+w*0.3} ${62+h-1} L${50+w*0.3+3} ${62+h+6+t*0.4}" stroke="#3a2a2a" stroke-width="2" stroke-linecap="round"/>
+      <path d="M${50+w*0.7} ${62+h-4} L${50+w+5} ${62+h-1+t*0.2}" stroke="#3a2a2a" stroke-width="2" stroke-linecap="round"/>
+      <path d="M${50-w-4} ${62-h-2} Q${50-w-10-t} ${62-h-8-t} ${50-w-14-t*1.2} ${62-h-4-t*0.4}" stroke="url(#${pid})" stroke-width="${4+t*0.3}" fill="none" stroke-linecap="round"/>
+      <path d="M${50-w-14-t*1.2} ${62-h-4-t*0.4} L${50-w-22-t*1.5} ${62-h-8-t*0.6} L${50-w-18-t*1.4} ${62-h+2-t*0.2} L${50-w-14-t*1.2} ${62-h-4-t*0.4} Z" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.4"/>
+      <path d="M${50-w-22-t*1.5} ${62-h-8-t*0.6} L${50-w-18-t*1.4} ${62-h-5-t*0.4}" stroke="#3a2a2a" stroke-width="1.2" fill="none"/>
+      <path d="M${50+w+4} ${62-h-2} Q${50+w+10+t} ${62-h-8-t} ${50+w+14+t*1.2} ${62-h-4-t*0.4}" stroke="url(#${pid})" stroke-width="${4+t*0.3}" fill="none" stroke-linecap="round"/>
+      <path d="M${50+w+14+t*1.2} ${62-h-4-t*0.4} L${50+w+22+t*1.5} ${62-h-8-t*0.6} L${50+w+18+t*1.4} ${62-h+2-t*0.2} L${50+w+14+t*1.2} ${62-h-4-t*0.4} Z" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.4"/>
+      <path d="M${50+w+22+t*1.5} ${62-h-8-t*0.6} L${50+w+18+t*1.4} ${62-h-5-t*0.4}" stroke="#3a2a2a" stroke-width="1.2" fill="none"/>
+      <ellipse cx="50" cy="62" rx="${w}" ry="${h}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.6"/>
+      <path d="M${50-w} 62 Q50 ${62+h*0.3} ${50+w} 62" stroke="${e.s}" stroke-width="1.5" fill="none" opacity="0.7"/>
+      <line x1="${50-4}" y1="${62-h*0.6}" x2="${50-4}" y2="${62-h-3-t*0.4}" stroke="#3a2a2a" stroke-width="1.4"/>
+      <line x1="${50+4}" y1="${62-h*0.6}" x2="${50+4}" y2="${62-h-3-t*0.4}" stroke="#3a2a2a" stroke-width="1.4"/>
+      <circle cx="${50-4}" cy="${62-h-3-t*0.4}" r="${3+t*0.15}" fill="white" stroke="#3a2a2a" stroke-width="1.2"/>
+      <circle cx="${50+4}" cy="${62-h-3-t*0.4}" r="${3+t*0.15}" fill="white" stroke="#3a2a2a" stroke-width="1.2"/>
+      <circle cx="${50-4}" cy="${62-h-3-t*0.4}" r="${1.5+t*0.1}" fill="#222"/>
+      <circle cx="${50+4}" cy="${62-h-3-t*0.4}" r="${1.5+t*0.1}" fill="#222"/>
+      <path d="M${50-4} ${62+h*0.2} Q50 ${62+h*0.45} ${50+4} ${62+h*0.2}" stroke="#3a2a2a" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+    `;
+  }
+  // 最終形: 王冠付きキングクラブ
+  const w = 22, h = 13;
+  return `
+    <path d="M${50-w*0.75} ${62+h-2} L${50-w-4} ${62+h+8}" stroke="#3a2a2a" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M${50-w*0.4} ${62+h-1} L${50-w*0.4-4} ${62+h+10}" stroke="#3a2a2a" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M${50-w*0.1} ${62+h-1} L${50-w*0.15} ${62+h+11}" stroke="#3a2a2a" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M${50+w*0.1} ${62+h-1} L${50+w*0.15} ${62+h+11}" stroke="#3a2a2a" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M${50+w*0.4} ${62+h-1} L${50+w*0.4+4} ${62+h+10}" stroke="#3a2a2a" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M${50+w*0.75} ${62+h-2} L${50+w+4} ${62+h+8}" stroke="#3a2a2a" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M${50-w-4} ${62-h-2} Q${50-w-12} ${62-h-12} ${50-w-18} ${62-h-6}" stroke="url(#${pid})" stroke-width="5.5" fill="none" stroke-linecap="round"/>
+    <path d="M${50-w-18} ${62-h-6} L${50-w-30} ${62-h-12} L${50-w-24} ${62-h+4} L${50-w-18} ${62-h-6} Z" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.6"/>
+    <path d="M${50-w-30} ${62-h-12} L${50-w-24} ${62-h-7}" stroke="#3a2a2a" stroke-width="1.3" fill="none"/>
+    <path d="M${50-w-26} ${62-h-3} L${50-w-22} ${62-h-1} M${50-w-28} ${62-h+1} L${50-w-22} ${62-h+1}" stroke="#3a2a2a" stroke-width="0.6"/>
+    <path d="M${50+w+4} ${62-h-2} Q${50+w+12} ${62-h-12} ${50+w+18} ${62-h-6}" stroke="url(#${pid})" stroke-width="5.5" fill="none" stroke-linecap="round"/>
+    <path d="M${50+w+18} ${62-h-6} L${50+w+30} ${62-h-12} L${50+w+24} ${62-h+4} L${50+w+18} ${62-h-6} Z" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.6"/>
+    <path d="M${50+w+30} ${62-h-12} L${50+w+24} ${62-h-7}" stroke="#3a2a2a" stroke-width="1.3" fill="none"/>
+    <ellipse cx="50" cy="62" rx="${w}" ry="${h}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.8"/>
+    <path d="M${50-w} 62 Q50 ${62+h*0.35} ${50+w} 62" stroke="${e.s}" stroke-width="2" fill="none" opacity="0.75"/>
+    <line x1="${50-5}" y1="${62-h*0.65}" x2="${50-5}" y2="${62-h-5}" stroke="#3a2a2a" stroke-width="1.6"/>
+    <line x1="${50+5}" y1="${62-h*0.65}" x2="${50+5}" y2="${62-h-5}" stroke="#3a2a2a" stroke-width="1.6"/>
+    <circle cx="${50-5}" cy="${62-h-5}" r="4" fill="white" stroke="#3a2a2a" stroke-width="1.4"/>
+    <circle cx="${50+5}" cy="${62-h-5}" r="4" fill="white" stroke="#3a2a2a" stroke-width="1.4"/>
+    <circle cx="${50-5}" cy="${62-h-5}" r="2" fill="#222"/>
+    <circle cx="${50+5}" cy="${62-h-5}" r="2" fill="#222"/>
+    <path d="M${50-9} ${62-h-9} L${50-7} ${62-h-15} L${50-3} ${62-h-11} L50 ${62-h-17} L${50+3} ${62-h-11} L${50+7} ${62-h-15} L${50+9} ${62-h-9} L${50+9} ${62-h-7} L${50-9} ${62-h-7} Z" fill="#fff200" stroke="#ff9900" stroke-width="1"/>
+    <circle cx="50" cy="${62-h-13}" r="1.5" fill="#ff4d4d"/>
+    <path d="M${50-5} ${62+h*0.25} Q50 ${62+h*0.55} ${50+5} ${62+h*0.25}" stroke="#3a2a2a" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+  `;
 }
 
 /* -------- 17. キノコ -------- */
 function drawMushroom(e, stage, pid) {
-  const t = stage - 4;
-  const capW = 18 + t*2.5;
-  const capH = 13 + t*1.5;
-  const stemW = 9 + t*0.8;
-  const stemH = 14 + t*1.3;
-  // 茎
-  const stem = `<rect x="${50-stemW}" y="${62}" width="${stemW*2}" height="${stemH}" rx="${stemW*0.6}" fill="${e.s}" stroke="#3a2a2a" stroke-width="1.6"/>`;
-  // 傘 (半円)
-  const cap = `<path d="M${50-capW} 62 Q${50-capW} ${62-capH*1.4} 50 ${62-capH*1.4} Q${50+capW} ${62-capH*1.4} ${50+capW} 62 Q${50+capW*0.6} ${62+capH*0.1} 50 62 Q${50-capW*0.6} ${62+capH*0.1} ${50-capW} 62 Z" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.6"/>`;
-  // 傘の白い水玉
-  const spots = `
-    <circle cx="${50-capW*0.4}" cy="${62-capH*0.6}" r="${3+t*0.2}" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.6"/>
-    <circle cx="${50+capW*0.45}" cy="${62-capH*0.5}" r="${3+t*0.2}" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.6"/>
-    <circle cx="50" cy="${62-capH*0.95}" r="${2.5+t*0.15}" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.6"/>
-    ${stage >= 6 ? `<circle cx="${50-capW*0.15}" cy="${62-capH*0.3}" r="${2+t*0.1}" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.5"/>` : ""}`;
-  // 傘の縁
-  const trim = `<path d="M${50-capW} 62 Q50 ${62+capH*0.15} ${50+capW} 62" stroke="#3a2a2a" stroke-width="1.2" fill="none"/>`;
-  // 茎の顔
-  const stemCy = 62 + stemH*0.5;
-  const face = bigEyes(50-stemW*0.45, 50+stemW*0.45, stemCy, 2.5+t*0.2) + blush(50-stemW*0.55, 50+stemW*0.55, stemCy+3, 2.5, "#ff8fbf") + smile(50, stemCy+4, 2.2);
-  // 小さい手
-  const hands = stage >= 6 ? `<circle cx="${50-stemW-3}" cy="${stemCy+2}" r="${2.5+t*0.15}" fill="${e.s}" stroke="#3a2a2a" stroke-width="0.8"/>
-    <circle cx="${50+stemW+3}" cy="${stemCy+2}" r="${2.5+t*0.15}" fill="${e.s}" stroke="#3a2a2a" stroke-width="0.8"/>` : "";
-  // 草 (足元)
-  const grass = stage >= 7 ? `<path d="M${50-stemW-4} ${62+stemH} L${50-stemW-6} ${62+stemH+3} M${50+stemW+4} ${62+stemH} L${50+stemW+6} ${62+stemH+3}" stroke="${e.p}" stroke-width="1.5" stroke-linecap="round"/>` : "";
-  return grass + stem + hands + cap + trim + spots + face;
+  if (stage <= 6) {
+    // ベビー: 小さなキノコの芽（白いドットなし）
+    const t = stage - 4;
+    const cw = 12 + t*1.5, ch = 9 + t*1;
+    const sw = 6 + t*0.5, sh = 10 + t*0.8;
+    return `
+      <rect x="${50-sw}" y="${62}" width="${sw*2}" height="${sh}" rx="${sw*0.6}" fill="${e.s}" stroke="#3a2a2a" stroke-width="1.4"/>
+      <path d="M${50-cw} 62 Q${50-cw} ${62-ch*1.4} 50 ${62-ch*1.4} Q${50+cw} ${62-ch*1.4} ${50+cw} 62 Q${50+cw*0.6} ${62+ch*0.1} 50 62 Q${50-cw*0.6} ${62+ch*0.1} ${50-cw} 62 Z" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.4"/>
+      ${t >= 1 ? `<circle cx="${50-cw*0.4}" cy="${62-ch*0.6}" r="${2+t*0.2}" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.5"/>
+                  <circle cx="${50+cw*0.4}" cy="${62-ch*0.5}" r="${1.8+t*0.15}" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.5"/>` : ""}
+      <path d="M${50-cw} 62 Q50 ${62+ch*0.15} ${50+cw} 62" stroke="#3a2a2a" stroke-width="1.1" fill="none"/>
+      ${bigEyes(50-sw*0.45, 50+sw*0.45, 62+sh*0.5, 2+t*0.15)}
+      ${blush(50-sw*0.55, 50+sw*0.55, 62+sh*0.5+3, 2, "#ff8fbf")}
+      ${smile(50, 62+sh*0.5+3.5, 2)}
+    `;
+  }
+  if (stage <= 9) {
+    // 進化形: しっかりしたキノコ（水玉、手、足元の草）
+    const t = stage - 7;
+    const cw = 18 + t*1.5, ch = 13 + t*1;
+    const sw = 9 + t*0.5, sh = 14 + t*0.8;
+    const stemCy = 62 + sh*0.5;
+    return `
+      <path d="M${50-sw-4} ${62+sh} L${50-sw-6} ${62+sh+3} M${50+sw+4} ${62+sh} L${50+sw+6} ${62+sh+3}" stroke="${e.p}" stroke-width="1.5" stroke-linecap="round"/>
+      <rect x="${50-sw}" y="62" width="${sw*2}" height="${sh}" rx="${sw*0.6}" fill="${e.s}" stroke="#3a2a2a" stroke-width="1.6"/>
+      <circle cx="${50-sw-3}" cy="${stemCy+2}" r="${2.5+t*0.15}" fill="${e.s}" stroke="#3a2a2a" stroke-width="0.8"/>
+      <circle cx="${50+sw+3}" cy="${stemCy+2}" r="${2.5+t*0.15}" fill="${e.s}" stroke="#3a2a2a" stroke-width="0.8"/>
+      <path d="M${50-cw} 62 Q${50-cw} ${62-ch*1.4} 50 ${62-ch*1.4} Q${50+cw} ${62-ch*1.4} ${50+cw} 62 Q${50+cw*0.6} ${62+ch*0.1} 50 62 Q${50-cw*0.6} ${62+ch*0.1} ${50-cw} 62 Z" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.6"/>
+      <circle cx="${50-cw*0.4}" cy="${62-ch*0.6}" r="${3+t*0.2}" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.6"/>
+      <circle cx="${50+cw*0.45}" cy="${62-ch*0.5}" r="${3+t*0.2}" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.6"/>
+      <circle cx="50" cy="${62-ch*0.95}" r="${2.5+t*0.15}" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.6"/>
+      <circle cx="${50-cw*0.15}" cy="${62-ch*0.3}" r="${2+t*0.1}" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.5"/>
+      <path d="M${50-cw} 62 Q50 ${62+ch*0.15} ${50+cw} 62" stroke="#3a2a2a" stroke-width="1.2" fill="none"/>
+      ${bigEyes(50-sw*0.45, 50+sw*0.45, stemCy, 2.5+t*0.2)}
+      ${blush(50-sw*0.55, 50+sw*0.55, stemCy+3, 2.5, "#ff8fbf")}
+      ${smile(50, stemCy+4, 2.2)}
+    `;
+  }
+  // 最終形: 巨大樹キノコ（3つ重ねの傘 + 大きな茎 + 木）
+  const sw = 11, sh = 22;
+  return `
+    <path d="M${50-sw-5} ${62+sh+2} L${50-sw-8} ${62+sh+5} M${50+sw+5} ${62+sh+2} L${50+sw+8} ${62+sh+5} M${50-sw-2} ${62+sh+2} L${50-sw-3} ${62+sh+6}" stroke="${e.p}" stroke-width="1.8" stroke-linecap="round"/>
+    <ellipse cx="50" cy="${62+sh+4}" rx="20" ry="3" fill="#3a2a2a" opacity="0.2"/>
+    <rect x="${50-sw}" y="62" width="${sw*2}" height="${sh}" rx="${sw*0.6}" fill="${e.s}" stroke="#3a2a2a" stroke-width="2"/>
+    <path d="M${50-sw+2} 70 Q50 73 ${50+sw-2} 70" stroke="${e.p}" stroke-width="1" fill="none" opacity="0.7"/>
+    <circle cx="${50-sw-4}" cy="${62+sh*0.5+2}" r="3.5" fill="${e.s}" stroke="#3a2a2a" stroke-width="1"/>
+    <circle cx="${50+sw+4}" cy="${62+sh*0.5+2}" r="3.5" fill="${e.s}" stroke="#3a2a2a" stroke-width="1"/>
+    <path d="M${50-22} 62 Q${50-22} ${62-12} 50 ${62-12} Q${50+22} ${62-12} ${50+22} 62 Q${50+13} ${64} 50 62 Q${50-13} 64 ${50-22} 62 Z" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.6"/>
+    <circle cx="${50-9}" cy="${62-7}" r="3" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.6"/>
+    <circle cx="${50+10}" cy="${62-6}" r="3" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.6"/>
+    <path d="M${50-15} 50 Q${50-15} ${50-10} 50 ${50-10} Q${50+15} ${50-10} ${50+15} 50 Q${50+9} 52 50 50 Q${50-9} 52 ${50-15} 50 Z" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.6"/>
+    <circle cx="${50-6}" cy="${50-5}" r="2.5" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.5"/>
+    <circle cx="${50+7}" cy="${50-6}" r="2.5" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.5"/>
+    <path d="M${50-10} 38 Q${50-10} 30 50 30 Q${50+10} 30 ${50+10} 38 Q${50+6} 40 50 38 Q${50-6} 40 ${50-10} 38 Z" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.6"/>
+    <circle cx="50" cy="33" r="2" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.5"/>
+    <path d="M${50-3} 28 L50 22 L${50+3} 28 Z" fill="${e.p}" stroke="#3a2a2a" stroke-width="0.6"/>
+    ${bigEyes(50-sw*0.45, 50+sw*0.45, 62+sh*0.55, 3)}
+    ${blush(50-sw*0.55, 50+sw*0.55, 62+sh*0.55+4, 3, "#ff8fbf")}
+    ${smile(50, 62+sh*0.55+5, 2.5)}
+  `;
 }
 
 /* -------- 18. フラワー (花) -------- */
 function drawFlora(e, stage, pid) {
-  const bodyR = 17 + (stage-4) * 2.5;
-  const eyeR = 4.5 + (stage-4)*0.3;
-  const leafH = (stage-3)*2.8;
-  const body = `<ellipse cx="50" cy="64" rx="${bodyR}" ry="${bodyR}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.6"/>`;
-  const belly = stage >= 5 ? `<ellipse cx="50" cy="68" rx="${bodyR*0.6}" ry="${bodyR*0.7}" fill="${e.s}" opacity="0.85"/>` : "";
-  const headLeaf = `<path d="M50 ${64-bodyR} Q44 ${64-bodyR-leafH*1.3} 38 ${64-bodyR-leafH*0.3} Q44 ${64-bodyR-leafH*0.6} 50 ${64-bodyR*0.9} Z" fill="${e.s}" stroke="#3a2a2a" stroke-width="1"/>
-    <path d="M50 ${64-bodyR} Q56 ${64-bodyR-leafH*1.3} 62 ${64-bodyR-leafH*0.3} Q56 ${64-bodyR-leafH*0.6} 50 ${64-bodyR*0.9} Z" fill="${e.s}" stroke="#3a2a2a" stroke-width="1"/>
-    <path d="M50 ${64-bodyR-leafH*0.3} L50 ${64-bodyR}" stroke="#3a2a2a" stroke-width="1"/>`;
-  const flower = stage >= 7 ? `<g transform="translate(50 ${64-bodyR-leafH*0.85})">
-    <circle cx="0" cy="-${leafH*0.4}" r="3.5" fill="${e.a}"/>
-    <circle cx="${leafH*0.38}" cy="-${leafH*0.15}" r="3.5" fill="${e.a}"/>
-    <circle cx="-${leafH*0.38}" cy="-${leafH*0.15}" r="3.5" fill="${e.a}"/>
-    <circle cx="${leafH*0.25}" cy="${leafH*0.3}" r="3.5" fill="${e.a}"/>
-    <circle cx="-${leafH*0.25}" cy="${leafH*0.3}" r="3.5" fill="${e.a}"/>
-    <circle cx="0" cy="0" r="${2+stage*0.15}" fill="${e.p}"/>
-  </g>` : "";
-  const vines = stage >= 6 ? `<path d="M${50-bodyR*0.85} 66 Q${50-bodyR-8} 72 ${50-bodyR-6} 80 Q${50-bodyR-4} 82 ${50-bodyR-8} 84" stroke="${e.s}" stroke-width="2.2" fill="none" stroke-linecap="round"/>
-    <path d="M${50+bodyR*0.85} 66 Q${50+bodyR+8} 72 ${50+bodyR+6} 80 Q${50+bodyR+4} 82 ${50+bodyR+8} 84" stroke="${e.s}" stroke-width="2.2" fill="none" stroke-linecap="round"/>` : "";
-  const leaves = stage >= 8 ? `<path d="M${50-bodyR-4} 78 Q${50-bodyR-12} 76 ${50-bodyR-12} 86 Q${50-bodyR-6} 86 ${50-bodyR-4} 78Z" fill="${e.s}" stroke="#3a2a2a" stroke-width="0.8"/>
-    <path d="M${50+bodyR+4} 78 Q${50+bodyR+12} 76 ${50+bodyR+12} 86 Q${50+bodyR+6} 86 ${50+bodyR+4} 78Z" fill="${e.s}" stroke="#3a2a2a" stroke-width="0.8"/>` : "";
-  return vines + body + belly + leaves + headLeaf + flower + blush(50-bodyR*0.55, 50+bodyR*0.55, 66, 4, e.a) + bigEyes(50-bodyR*0.4, 50+bodyR*0.4, 60, eyeR) + smile(50, 68, 3.5);
+  if (stage <= 6) {
+    // ベビー: つぼみ・新芽（葉だけ）
+    const t = stage - 4;
+    const r = 11 + t*1.5;
+    const lH = 6 + t*2;
+    return `
+      <ellipse cx="50" cy="66" rx="${r}" ry="${r*1.05}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.4"/>
+      <ellipse cx="50" cy="68" rx="${r*0.55}" ry="${r*0.65}" fill="${e.s}" opacity="0.85"/>
+      <path d="M50 ${66-r} Q44 ${66-r-lH*1.3} 38 ${66-r-lH*0.3} Q44 ${66-r-lH*0.6} 50 ${66-r*0.85} Z" fill="${e.s}" stroke="#3a2a2a" stroke-width="1"/>
+      <path d="M50 ${66-r} Q56 ${66-r-lH*1.3} 62 ${66-r-lH*0.3} Q56 ${66-r-lH*0.6} 50 ${66-r*0.85} Z" fill="${e.s}" stroke="#3a2a2a" stroke-width="1"/>
+      <path d="M50 ${66-r-lH*0.3} L50 ${66-r}" stroke="#3a2a2a" stroke-width="1"/>
+      ${blush(50-r*0.55, 50+r*0.55, 68, 3, e.a)}
+      ${bigEyes(50-r*0.35, 50+r*0.35, 64, 3+t*0.2)}
+      ${smile(50, 70, 2.5)}
+    `;
+  }
+  if (stage <= 9) {
+    // 進化形: 花咲く（頭に花、ツル）
+    const t = stage - 7;
+    const r = 17 + t*1.5;
+    const lH = 11 + t*1.5;
+    return `
+      <path d="M${50-r*0.85} 66 Q${50-r-8} 72 ${50-r-6} 80 Q${50-r-4} 82 ${50-r-8} 84" stroke="${e.s}" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <path d="M${50+r*0.85} 66 Q${50+r+8} 72 ${50+r+6} 80 Q${50+r+4} 82 ${50+r+8} 84" stroke="${e.s}" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <ellipse cx="50" cy="64" rx="${r}" ry="${r}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.6"/>
+      <ellipse cx="50" cy="68" rx="${r*0.6}" ry="${r*0.7}" fill="${e.s}" opacity="0.85"/>
+      <path d="M50 ${64-r} Q44 ${64-r-lH*1.3} 38 ${64-r-lH*0.3} Q44 ${64-r-lH*0.6} 50 ${64-r*0.9} Z" fill="${e.s}" stroke="#3a2a2a" stroke-width="1"/>
+      <path d="M50 ${64-r} Q56 ${64-r-lH*1.3} 62 ${64-r-lH*0.3} Q56 ${64-r-lH*0.6} 50 ${64-r*0.9} Z" fill="${e.s}" stroke="#3a2a2a" stroke-width="1"/>
+      <g transform="translate(50 ${64-r-lH*0.85})">
+        <circle cx="0" cy="-${lH*0.4}" r="3.5" fill="${e.a}"/>
+        <circle cx="${lH*0.38}" cy="-${lH*0.15}" r="3.5" fill="${e.a}"/>
+        <circle cx="-${lH*0.38}" cy="-${lH*0.15}" r="3.5" fill="${e.a}"/>
+        <circle cx="${lH*0.25}" cy="${lH*0.3}" r="3.5" fill="${e.a}"/>
+        <circle cx="-${lH*0.25}" cy="${lH*0.3}" r="3.5" fill="${e.a}"/>
+        <circle cx="0" cy="0" r="${2+t*0.4}" fill="${e.p}"/>
+      </g>
+      ${blush(50-r*0.55, 50+r*0.55, 66, 4, e.a)}
+      ${bigEyes(50-r*0.4, 50+r*0.4, 60, 4.5+t*0.25)}
+      ${smile(50, 68, 3.5)}
+    `;
+  }
+  // 最終形: 花の女神（花冠+巨大な花の頭飾り+花のドレス）
+  const r = 20;
+  return `
+    <circle cx="50" cy="64" r="44" fill="${e.a}" opacity="0.15"/>
+    <path d="M${50-r*0.7} 80 Q${50-r-10} 86 ${50-r-12} 96" stroke="${e.s}" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+    <path d="M${50+r*0.7} 80 Q${50+r+10} 86 ${50+r+12} 96" stroke="${e.s}" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+    <path d="M${50-r-7} 90 Q${50-r-14} 86 ${50-r-15} 96 Q${50-r-8} 96 ${50-r-7} 90Z" fill="${e.s}" stroke="#3a2a2a" stroke-width="0.8"/>
+    <path d="M${50+r+7} 90 Q${50+r+14} 86 ${50+r+15} 96 Q${50+r+8} 96 ${50+r+7} 90Z" fill="${e.s}" stroke="#3a2a2a" stroke-width="0.8"/>
+    <ellipse cx="50" cy="64" rx="${r}" ry="${r}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.8"/>
+    <ellipse cx="50" cy="68" rx="${r*0.65}" ry="${r*0.75}" fill="${e.s}" opacity="0.9"/>
+    <circle cx="${50-r*0.6}" cy="${64+r*0.4}" r="3" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.6"/>
+    <circle cx="${50+r*0.6}" cy="${64+r*0.4}" r="3" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.6"/>
+    <circle cx="${50-r*0.5}" cy="${64+r*0.7}" r="2.5" fill="${e.s}" stroke="#3a2a2a" stroke-width="0.5"/>
+    <circle cx="${50+r*0.5}" cy="${64+r*0.7}" r="2.5" fill="${e.s}" stroke="#3a2a2a" stroke-width="0.5"/>
+    <g transform="translate(50 ${64-r-18})">
+      <circle cx="-12" cy="0" r="9" fill="${e.a}"/>
+      <circle cx="12" cy="0" r="9" fill="${e.a}"/>
+      <circle cx="-6" cy="-12" r="9" fill="${e.a}"/>
+      <circle cx="6" cy="-12" r="9" fill="${e.a}"/>
+      <circle cx="0" cy="-8" r="9" fill="${e.a}"/>
+      <circle cx="-7" cy="7" r="9" fill="${e.a}"/>
+      <circle cx="7" cy="7" r="9" fill="${e.a}"/>
+      <circle cx="0" cy="0" r="5" fill="${e.p}"/>
+      <circle cx="0" cy="0" r="2" fill="#fff200"/>
+    </g>
+    <path d="M${50-r*0.7} ${64-r*0.7} Q${50-r-2} ${64-r*0.4} ${50-r-4} ${64-r*0.1}" stroke="${e.s}" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M${50+r*0.7} ${64-r*0.7} Q${50+r+2} ${64-r*0.4} ${50+r+4} ${64-r*0.1}" stroke="${e.s}" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <circle cx="${50-r-4}" cy="${64-r*0.1}" r="3" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.6"/>
+    <circle cx="${50+r+4}" cy="${64-r*0.1}" r="3" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.6"/>
+    ${blush(50-r*0.55, 50+r*0.55, 66, 4, e.a)}
+    ${bigEyes(50-r*0.4, 50+r*0.4, 60, 5)}
+    ${smile(50, 68, 4)}
+  `;
 }
 
 /* -------- 19. ライオン -------- */
 function drawLion(e, stage, pid) {
-  const t = stage - 4;
-  const headR = 16 + t*1.8;
-  const maneSpikes = 12;
-  // たてがみ (頭の周りのギザギザ)
-  let mane = `<g>`;
-  for (let i = 0; i < maneSpikes; i++) {
-    const ang = (i / maneSpikes) * Math.PI * 2;
-    const innerR = headR * 0.9;
-    const outerR = headR * 1.4 + t*0.4;
-    const cx1 = 50 + Math.cos(ang) * innerR;
-    const cy1 = 60 + Math.sin(ang) * innerR;
-    const cx2 = 50 + Math.cos(ang + 0.1) * outerR;
-    const cy2 = 60 + Math.sin(ang + 0.1) * outerR;
-    const cx3 = 50 + Math.cos(ang + 0.26) * innerR;
-    const cy3 = 60 + Math.sin(ang + 0.26) * innerR;
-    mane += `<path d="M${cx1.toFixed(1)} ${cy1.toFixed(1)} L${cx2.toFixed(1)} ${cy2.toFixed(1)} L${cx3.toFixed(1)} ${cy3.toFixed(1)} Z" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.8"/>`;
+  if (stage <= 6) {
+    // ベビー: 子ライオン（たてがみなし）
+    const t = stage - 4;
+    const r = 13 + t*1.5;
+    return `
+      <circle cx="50" cy="62" r="${r}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.5"/>
+      <ellipse cx="50" cy="${62+r*0.3}" rx="${r*0.55}" ry="${r*0.4}" fill="${e.s}"/>
+      <ellipse cx="${50-r*0.6}" cy="${62-r*0.65}" rx="${3+t*0.2}" ry="${3.5+t*0.2}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1"/>
+      <ellipse cx="${50+r*0.6}" cy="${62-r*0.65}" rx="${3+t*0.2}" ry="${3.5+t*0.2}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1"/>
+      <ellipse cx="${50-r*0.6}" cy="${62-r*0.6}" rx="${1.5+t*0.1}" ry="${2+t*0.1}" fill="${e.s}"/>
+      <ellipse cx="${50+r*0.6}" cy="${62-r*0.6}" rx="${1.5+t*0.1}" ry="${2+t*0.1}" fill="${e.s}"/>
+      ${blush(50-r*0.5, 50+r*0.5, 62+r*0.05, 3, "#ff8fbf")}
+      ${bigEyes(50-r*0.3, 50+r*0.3, 60, 3.5+t*0.2)}
+      <path d="M${50-2.5} ${62+r*0.18} L${50+2.5} ${62+r*0.18} L50 ${62+r*0.32} Z" fill="#3a2a2a"/>
+      ${smile(50, 62+r*0.45, 2.5)}
+    `;
   }
-  mane += `</g>`;
-  // 顔の本体 (円)
-  const face = `<circle cx="50" cy="60" r="${headR}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.6"/>`;
-  // 鼻周り
-  const muzzle = `<ellipse cx="50" cy="${60+headR*0.3}" rx="${headR*0.55}" ry="${headR*0.4}" fill="${e.s}"/>`;
-  // 耳
-  const ears = `<ellipse cx="${50-headR*0.65}" cy="${60-headR*0.6}" rx="${4+t*0.2}" ry="${5+t*0.2}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.2"/>
-    <ellipse cx="${50+headR*0.65}" cy="${60-headR*0.6}" rx="${4+t*0.2}" ry="${5+t*0.2}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.2"/>
-    <ellipse cx="${50-headR*0.65}" cy="${60-headR*0.55}" rx="${2+t*0.1}" ry="${3+t*0.1}" fill="${e.s}"/>
-    <ellipse cx="${50+headR*0.65}" cy="${60-headR*0.55}" rx="${2+t*0.1}" ry="${3+t*0.1}" fill="${e.s}"/>`;
-  // 鼻
-  const nose = `<path d="M${50-3} ${60+headR*0.15} L${50+3} ${60+headR*0.15} L50 ${60+headR*0.32} Z" fill="#3a2a2a"/>`;
-  // 口
-  const mouth = `<path d="M50 ${60+headR*0.32} L50 ${60+headR*0.5} M50 ${60+headR*0.5} Q${50-3} ${60+headR*0.55} ${50-5} ${60+headR*0.45} M50 ${60+headR*0.5} Q${50+3} ${60+headR*0.55} ${50+5} ${60+headR*0.45}" stroke="#3a2a2a" stroke-width="1.4" fill="none" stroke-linecap="round"/>`;
-  // ヒゲ点
-  const cheekDots = `<circle cx="${50-headR*0.4}" cy="${60+headR*0.3}" r="0.7" fill="#3a2a2a"/>
-    <circle cx="${50-headR*0.35}" cy="${60+headR*0.42}" r="0.7" fill="#3a2a2a"/>
-    <circle cx="${50+headR*0.4}" cy="${60+headR*0.3}" r="0.7" fill="#3a2a2a"/>
-    <circle cx="${50+headR*0.35}" cy="${60+headR*0.42}" r="0.7" fill="#3a2a2a"/>`;
-  // しっぽ + ふさ
-  const tail = stage >= 7 ? `<path d="M${50+headR+1} ${60+headR*0.6} Q${50+headR+12} ${60+headR*0.2} ${50+headR+14} ${60-headR*0.2}" stroke="${e.a}" stroke-width="${3.5+t*0.2}" fill="none" stroke-linecap="round"/>
-    <circle cx="${50+headR+14}" cy="${60-headR*0.2}" r="${3+t*0.2}" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.8"/>` : "";
-  return tail + mane + face + muzzle + ears + blush(50-headR*0.5, 50+headR*0.5, 60+headR*0.05, 3.5, "#ff8fbf") + bigEyes(50-headR*0.32, 50+headR*0.32, 58, 4+t*0.25) + nose + mouth + cheekDots;
+  if (stage <= 9) {
+    // 進化形: 若いライオン（たてがみあり）
+    const t = stage - 7;
+    const r = 16 + t*1.3;
+    let mane = "<g>";
+    for (let i = 0; i < 12; i++) {
+      const ang = (i / 12) * Math.PI * 2;
+      const iR = r * 0.9, oR = r * 1.35;
+      const x1 = 50 + Math.cos(ang) * iR;
+      const y1 = 60 + Math.sin(ang) * iR;
+      const x2 = 50 + Math.cos(ang + 0.1) * oR;
+      const y2 = 60 + Math.sin(ang + 0.1) * oR;
+      const x3 = 50 + Math.cos(ang + 0.26) * iR;
+      const y3 = 60 + Math.sin(ang + 0.26) * iR;
+      mane += `<path d="M${x1.toFixed(1)} ${y1.toFixed(1)} L${x2.toFixed(1)} ${y2.toFixed(1)} L${x3.toFixed(1)} ${y3.toFixed(1)} Z" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.8"/>`;
+    }
+    mane += "</g>";
+    return `
+      <path d="M${50+r+1} ${60+r*0.6} Q${50+r+12} ${60+r*0.2} ${50+r+14} ${60-r*0.2}" stroke="${e.a}" stroke-width="${3.5+t*0.2}" fill="none" stroke-linecap="round"/>
+      <circle cx="${50+r+14}" cy="${60-r*0.2}" r="${3+t*0.2}" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.8"/>
+      ${mane}
+      <circle cx="50" cy="60" r="${r}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.6"/>
+      <ellipse cx="50" cy="${60+r*0.3}" rx="${r*0.55}" ry="${r*0.4}" fill="${e.s}"/>
+      <ellipse cx="${50-r*0.65}" cy="${60-r*0.6}" rx="${4+t*0.2}" ry="${5+t*0.2}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.2"/>
+      <ellipse cx="${50+r*0.65}" cy="${60-r*0.6}" rx="${4+t*0.2}" ry="${5+t*0.2}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.2"/>
+      <ellipse cx="${50-r*0.65}" cy="${60-r*0.55}" rx="${2+t*0.1}" ry="${3+t*0.1}" fill="${e.s}"/>
+      <ellipse cx="${50+r*0.65}" cy="${60-r*0.55}" rx="${2+t*0.1}" ry="${3+t*0.1}" fill="${e.s}"/>
+      ${blush(50-r*0.5, 50+r*0.5, 60+r*0.05, 3.5, "#ff8fbf")}
+      ${bigEyes(50-r*0.32, 50+r*0.32, 58, 4+t*0.25)}
+      <path d="M${50-3} ${60+r*0.15} L${50+3} ${60+r*0.15} L50 ${60+r*0.32} Z" fill="#3a2a2a"/>
+      <path d="M50 ${60+r*0.32} L50 ${60+r*0.5} M50 ${60+r*0.5} Q${50-3} ${60+r*0.55} ${50-5} ${60+r*0.45} M50 ${60+r*0.5} Q${50+3} ${60+r*0.55} ${50+5} ${60+r*0.45}" stroke="#3a2a2a" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      <circle cx="${50-r*0.4}" cy="${60+r*0.3}" r="0.7" fill="#3a2a2a"/>
+      <circle cx="${50-r*0.35}" cy="${60+r*0.42}" r="0.7" fill="#3a2a2a"/>
+      <circle cx="${50+r*0.4}" cy="${60+r*0.3}" r="0.7" fill="#3a2a2a"/>
+      <circle cx="${50+r*0.35}" cy="${60+r*0.42}" r="0.7" fill="#3a2a2a"/>
+    `;
+  }
+  // 最終形: ライオン王（王冠+二重のたてがみ+牙）
+  const r = 18;
+  let outerMane = "<g>";
+  for (let i = 0; i < 14; i++) {
+    const ang = (i / 14) * Math.PI * 2;
+    const iR = r * 1.0, oR = r * 1.7;
+    const x1 = 50 + Math.cos(ang) * iR;
+    const y1 = 60 + Math.sin(ang) * iR;
+    const x2 = 50 + Math.cos(ang + 0.1) * oR;
+    const y2 = 60 + Math.sin(ang + 0.1) * oR;
+    const x3 = 50 + Math.cos(ang + 0.22) * iR;
+    const y3 = 60 + Math.sin(ang + 0.22) * iR;
+    outerMane += `<path d="M${x1.toFixed(1)} ${y1.toFixed(1)} L${x2.toFixed(1)} ${y2.toFixed(1)} L${x3.toFixed(1)} ${y3.toFixed(1)} Z" fill="${e.p}" stroke="#3a2a2a" stroke-width="0.8"/>`;
+  }
+  outerMane += "</g>";
+  let innerMane = "<g>";
+  for (let i = 0; i < 14; i++) {
+    const ang = (i / 14) * Math.PI * 2 + 0.11;
+    const iR = r * 0.85, oR = r * 1.35;
+    const x1 = 50 + Math.cos(ang) * iR;
+    const y1 = 60 + Math.sin(ang) * iR;
+    const x2 = 50 + Math.cos(ang + 0.1) * oR;
+    const y2 = 60 + Math.sin(ang + 0.1) * oR;
+    const x3 = 50 + Math.cos(ang + 0.22) * iR;
+    const y3 = 60 + Math.sin(ang + 0.22) * iR;
+    innerMane += `<path d="M${x1.toFixed(1)} ${y1.toFixed(1)} L${x2.toFixed(1)} ${y2.toFixed(1)} L${x3.toFixed(1)} ${y3.toFixed(1)} Z" fill="${e.a}" stroke="#3a2a2a" stroke-width="0.8"/>`;
+  }
+  innerMane += "</g>";
+  return `
+    <circle cx="50" cy="60" r="36" fill="${e.a}" opacity="0.15"/>
+    <path d="M${50+r+2} ${60+r*0.7} Q${50+r+14} ${60+r*0.3} ${50+r+18} ${60-r*0.1}" stroke="${e.a}" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <circle cx="${50+r+18}" cy="${60-r*0.1}" r="5" fill="${e.a}" stroke="#3a2a2a" stroke-width="1"/>
+    <path d="M${50+r+14} ${60-r*0.05} L${50+r+18} ${60-r*0.1-5} M${50+r+20} ${60-r*0.05} L${50+r+22} ${60-r*0.1-3}" stroke="${e.a}" stroke-width="1.8" fill="none"/>
+    ${outerMane}
+    ${innerMane}
+    <circle cx="50" cy="60" r="${r}" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.8"/>
+    <ellipse cx="50" cy="${60+r*0.3}" rx="${r*0.6}" ry="${r*0.4}" fill="${e.s}"/>
+    <ellipse cx="${50-r*0.65}" cy="${60-r*0.6}" rx="5" ry="6" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.2"/>
+    <ellipse cx="${50+r*0.65}" cy="${60-r*0.6}" rx="5" ry="6" fill="url(#${pid})" stroke="#3a2a2a" stroke-width="1.2"/>
+    <ellipse cx="${50-r*0.65}" cy="${60-r*0.55}" rx="2.5" ry="3.5" fill="${e.s}"/>
+    <ellipse cx="${50+r*0.65}" cy="${60-r*0.55}" rx="2.5" ry="3.5" fill="${e.s}"/>
+    <path d="M${50-9} ${60-r*1.05} L${50-7} ${60-r-9} L${50-3} ${60-r-3} L50 ${60-r-12} L${50+3} ${60-r-3} L${50+7} ${60-r-9} L${50+9} ${60-r*1.05} L${50+9} ${60-r*0.9} L${50-9} ${60-r*0.9} Z" fill="#fff200" stroke="#ff9900" stroke-width="1"/>
+    <circle cx="50" cy="${60-r-6}" r="2" fill="#ff4d4d"/>
+    <circle cx="${50-5}" cy="${60-r-2}" r="1.2" fill="#33d9ff"/>
+    <circle cx="${50+5}" cy="${60-r-2}" r="1.2" fill="#33d9ff"/>
+    ${blush(50-r*0.5, 50+r*0.5, 60+r*0.05, 4, "#ff8fbf")}
+    ${bigEyes(50-r*0.32, 50+r*0.32, 58, 5)}
+    <path d="M${50-3.5} ${60+r*0.15} L${50+3.5} ${60+r*0.15} L50 ${60+r*0.34} Z" fill="#3a2a2a"/>
+    <path d="M50 ${60+r*0.34} L50 ${60+r*0.5} M50 ${60+r*0.5} Q${50-3} ${60+r*0.58} ${50-6} ${60+r*0.48} M50 ${60+r*0.5} Q${50+3} ${60+r*0.58} ${50+6} ${60+r*0.48}" stroke="#3a2a2a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <path d="M${50-2} ${60+r*0.5} L${50-2.5} ${60+r*0.62} L${50-1} ${60+r*0.5} Z" fill="white" stroke="#3a2a2a" stroke-width="0.4"/>
+    <path d="M${50+2} ${60+r*0.5} L${50+2.5} ${60+r*0.62} L${50+1} ${60+r*0.5} Z" fill="white" stroke="#3a2a2a" stroke-width="0.4"/>
+    <circle cx="${50-r*0.4}" cy="${60+r*0.3}" r="0.7" fill="#3a2a2a"/>
+    <circle cx="${50-r*0.35}" cy="${60+r*0.42}" r="0.7" fill="#3a2a2a"/>
+    <circle cx="${50+r*0.4}" cy="${60+r*0.3}" r="0.7" fill="#3a2a2a"/>
+    <circle cx="${50+r*0.35}" cy="${60+r*0.42}" r="0.7" fill="#3a2a2a"/>
+  `;
 }
 
 /* -------- 20. レインボー (虹) -------- */
 function drawRainbow(e, stage, pid) {
-  const t = stage - 4;
-  const arcR = 16 + t*2.5;
   const colors = ["#ff4d4d", "#ff8c1a", "#fff200", "#3ec46e", "#3aa6ff", "#a64dff"];
-  // 雲ベース (下)
-  const cloudY = 70 + t*0.5;
-  const cloud = `
-    <ellipse cx="${50-15-t}" cy="${cloudY}" rx="${10+t*0.5}" ry="${7+t*0.3}" fill="#fff" stroke="#3a2a2a" stroke-width="1.4"/>
-    <ellipse cx="${50+15+t}" cy="${cloudY}" rx="${10+t*0.5}" ry="${7+t*0.3}" fill="#fff" stroke="#3a2a2a" stroke-width="1.4"/>
-    <ellipse cx="50" cy="${cloudY-3}" rx="${14+t*0.6}" ry="${9+t*0.4}" fill="#fff" stroke="#3a2a2a" stroke-width="1.4"/>`;
-  // 虹のアーチ
-  let arcs = "";
-  const visibleArcs = Math.min(6, 2 + t);
-  for (let i = 0; i < visibleArcs; i++) {
-    const r = arcR - i * (arcR*0.13);
-    arcs += `<path d="M${50-r} ${cloudY-3} A${r} ${r} 0 0 1 ${50+r} ${cloudY-3}" stroke="${colors[i]}" stroke-width="${3.5+t*0.1}" fill="none"/>`;
+  if (stage <= 6) {
+    // ベビー: 雲だけ（虹なし）
+    const t = stage - 4;
+    const cy = 62;
+    return `
+      <ellipse cx="${50-12-t}" cy="${cy+4}" rx="${9+t*0.5}" ry="${6+t*0.3}" fill="#fff" stroke="#3a2a2a" stroke-width="1.4"/>
+      <ellipse cx="${50+12+t}" cy="${cy+4}" rx="${9+t*0.5}" ry="${6+t*0.3}" fill="#fff" stroke="#3a2a2a" stroke-width="1.4"/>
+      <ellipse cx="50" cy="${cy}" rx="${13+t*0.5}" ry="${10+t*0.4}" fill="#fff" stroke="#3a2a2a" stroke-width="1.4"/>
+      <ellipse cx="50" cy="${cy+2}" rx="${10+t*0.4}" ry="${5}" fill="${e.s}" opacity="0.5"/>
+      ${blush(45, 55, cy+2, 3, "#ff8fbf")}
+      ${bigEyes(46, 54, cy-2, 3+t*0.2)}
+      ${smile(50, cy+3, 2.5)}
+    `;
   }
-  // 顔（雲の上）
-  const face = bigEyes(46, 54, cloudY-3, 3+t*0.2) + blush(43, 57, cloudY-1, 2.5, "#ff8fbf") + smile(50, cloudY+1, 2.5);
-  // キラキラ星 (アーチ外)
-  const stars = stage >= 7 ? `
-    <path d="M${50-arcR-8} ${cloudY-12} L${50-arcR-7} ${cloudY-9} L${50-arcR-4} ${cloudY-8} L${50-arcR-7} ${cloudY-6} L${50-arcR-8} ${cloudY-3} L${50-arcR-9} ${cloudY-6} L${50-arcR-12} ${cloudY-8} L${50-arcR-9} ${cloudY-9} Z" fill="#fff200" stroke="#ff9900" stroke-width="0.5"/>
-    <path d="M${50+arcR+8} ${cloudY-12} L${50+arcR+9} ${cloudY-9} L${50+arcR+12} ${cloudY-8} L${50+arcR+9} ${cloudY-6} L${50+arcR+8} ${cloudY-3} L${50+arcR+7} ${cloudY-6} L${50+arcR+4} ${cloudY-8} L${50+arcR+7} ${cloudY-9} Z" fill="#fff200" stroke="#ff9900" stroke-width="0.5"/>` : "";
-  // ハート (最終)
-  const hearts = stage >= 9 ? `<path d="M50 ${cloudY-arcR-8} C46 ${cloudY-arcR-12} 42 ${cloudY-arcR-8} 50 ${cloudY-arcR-3} C58 ${cloudY-arcR-8} 54 ${cloudY-arcR-12} 50 ${cloudY-arcR-8} Z" fill="#ff6b9d" stroke="#3a2a2a" stroke-width="1"/>` : "";
-  return arcs + hearts + stars + cloud + face;
+  if (stage <= 9) {
+    // 進化形: 雲＋虹アーチ（3-5色）
+    const t = stage - 7;
+    const arcR = 20 + t*2;
+    const cy = 70;
+    const visible = 3 + t;
+    let arcs = "";
+    for (let i = 0; i < visible; i++) {
+      const r = arcR - i * (arcR*0.13);
+      arcs += `<path d="M${50-r} ${cy-3} A${r} ${r} 0 0 1 ${50+r} ${cy-3}" stroke="${colors[i]}" stroke-width="${3.5+t*0.1}" fill="none"/>`;
+    }
+    const stars = `<path d="M${50-arcR-8} ${cy-10} L${50-arcR-7} ${cy-7} L${50-arcR-4} ${cy-6} L${50-arcR-7} ${cy-4} L${50-arcR-8} ${cy-1} L${50-arcR-9} ${cy-4} L${50-arcR-12} ${cy-6} L${50-arcR-9} ${cy-7} Z" fill="#fff200" stroke="#ff9900" stroke-width="0.5"/>
+                   <path d="M${50+arcR+8} ${cy-10} L${50+arcR+9} ${cy-7} L${50+arcR+12} ${cy-6} L${50+arcR+9} ${cy-4} L${50+arcR+8} ${cy-1} L${50+arcR+7} ${cy-4} L${50+arcR+4} ${cy-6} L${50+arcR+7} ${cy-7} Z" fill="#fff200" stroke="#ff9900" stroke-width="0.5"/>`;
+    return `
+      ${arcs}
+      ${stars}
+      <ellipse cx="${50-15}" cy="${cy}" rx="11" ry="7" fill="#fff" stroke="#3a2a2a" stroke-width="1.4"/>
+      <ellipse cx="${50+15}" cy="${cy}" rx="11" ry="7" fill="#fff" stroke="#3a2a2a" stroke-width="1.4"/>
+      <ellipse cx="50" cy="${cy-3}" rx="14" ry="9" fill="#fff" stroke="#3a2a2a" stroke-width="1.4"/>
+      ${blush(43, 57, cy-1, 2.5, "#ff8fbf")}
+      ${bigEyes(46, 54, cy-3, 3.5+t*0.2)}
+      ${smile(50, cy+1, 2.5)}
+    `;
+  }
+  // 最終形: 完全な虹（6色フル+大きな雲+星+ハート+きらめき）
+  const arcR = 32;
+  const cy = 78;
+  let arcs = "";
+  for (let i = 0; i < 6; i++) {
+    const r = arcR - i * 4;
+    arcs += `<path d="M${50-r} ${cy-3} A${r} ${r} 0 0 1 ${50+r} ${cy-3}" stroke="${colors[i]}" stroke-width="4.2" fill="none"/>`;
+  }
+  return `
+    <circle cx="50" cy="58" r="44" fill="${e.a}" opacity="0.2"/>
+    ${arcs}
+    <path d="M50 ${cy-arcR-8} C46 ${cy-arcR-13} 41 ${cy-arcR-8} 50 ${cy-arcR-2} C59 ${cy-arcR-8} 54 ${cy-arcR-13} 50 ${cy-arcR-8} Z" fill="#ff6b9d" stroke="#3a2a2a" stroke-width="1.2"/>
+    <path d="M${50-arcR-12} ${cy-12} L${50-arcR-10} ${cy-7} L${50-arcR-5} ${cy-5} L${50-arcR-10} ${cy-3} L${50-arcR-12} ${cy+2} L${50-arcR-14} ${cy-3} L${50-arcR-19} ${cy-5} L${50-arcR-14} ${cy-7} Z" fill="#fff200" stroke="#ff9900" stroke-width="0.7"/>
+    <path d="M${50+arcR+12} ${cy-12} L${50+arcR+14} ${cy-7} L${50+arcR+19} ${cy-5} L${50+arcR+14} ${cy-3} L${50+arcR+12} ${cy+2} L${50+arcR+10} ${cy-3} L${50+arcR+5} ${cy-5} L${50+arcR+10} ${cy-7} Z" fill="#fff200" stroke="#ff9900" stroke-width="0.7"/>
+    <circle cx="${50-arcR-4}" cy="${cy-22}" r="1.5" fill="#fff200"/>
+    <circle cx="${50+arcR+4}" cy="${cy-22}" r="1.5" fill="#fff200"/>
+    <circle cx="${50-8}" cy="${cy-arcR-15}" r="1.5" fill="#fff200"/>
+    <circle cx="${50+8}" cy="${cy-arcR-15}" r="1.5" fill="#fff200"/>
+    <ellipse cx="${50-17}" cy="${cy}" rx="12" ry="8" fill="#fff" stroke="#3a2a2a" stroke-width="1.6"/>
+    <ellipse cx="${50+17}" cy="${cy}" rx="12" ry="8" fill="#fff" stroke="#3a2a2a" stroke-width="1.6"/>
+    <ellipse cx="${50-8}" cy="${cy-5}" rx="11" ry="9" fill="#fff" stroke="#3a2a2a" stroke-width="1.6"/>
+    <ellipse cx="${50+8}" cy="${cy-5}" rx="11" ry="9" fill="#fff" stroke="#3a2a2a" stroke-width="1.6"/>
+    <ellipse cx="50" cy="${cy-3}" rx="16" ry="11" fill="#fff" stroke="#3a2a2a" stroke-width="1.6"/>
+    ${blush(43, 57, cy-1, 3.5, "#ff8fbf")}
+    ${bigEyes(46, 54, cy-4, 4.5)}
+    ${smile(50, cy+1, 3.5)}
+  `;
 }
 
 /* -------- エッグ固有の装飾デコ (体周辺の装飾) -------- */

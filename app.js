@@ -211,14 +211,7 @@ function renderHome() {
     html += `</div>`;
   }
 
-  html += `<div class="card" style="text-align:center">
-    <button class="ghost-btn" id="galleryBtn" style="width:100%">📖 アバター<ruby>図鑑<rt>ずかん</rt></ruby>をみる</button>
-  </div>`;
-
   shell("home", html);
-
-  const galleryBtn = document.getElementById("galleryBtn");
-  if (galleryBtn) galleryBtn.onclick = () => location.hash = "#/gallery";
 
   document.querySelectorAll("[data-id]").forEach(el => {
     el.onclick = () => location.hash = "#/goal/" + el.dataset.id;
@@ -428,9 +421,6 @@ function renderCreateEgg() {
       <h2>4. アバターのたまごをえらぼう</h2>
       <p class="help-text">めざめると どんなふうに そだつかな？</p>
       <div class="egg-grid">${cells}</div>
-      <div style="text-align:center;margin-top:12px;font-size:14px;color:var(--text-soft)">
-        えらんだ：<b id="eggName" style="color:var(--primary-dark)">${eggLabel(draft.eggType)}</b>
-      </div>
     </div>
     <div class="card row-flex">
       <button class="ghost-btn" id="backBtn" style="flex:1">もどる</button>
@@ -443,7 +433,6 @@ function renderCreateEgg() {
       draft.eggType = +c.dataset.i;
       document.querySelectorAll(".egg-cell").forEach(x => x.classList.remove("selected"));
       c.classList.add("selected");
-      document.getElementById("eggName").textContent = eggLabel(draft.eggType);
     };
   });
   document.getElementById("backBtn").onclick = () => { draft.step = 3; renderCreate(); };
@@ -553,7 +542,8 @@ function renderGoalDetail(id) {
     ${!isCompleted ? `
     <div class="count-btn-row">
       <button class="ghost-btn" id="minusBtn">－1</button>
-      <button class="add-btn" id="plusBtn">＋1 やった！</button>
+      <button class="add-btn" id="plusBtn">＋1</button>
+      <button class="add-btn" id="plus5Btn">＋5</button>
     </div>
     <div class="card row-flex">
       <button class="ghost-btn" id="backBtn" style="flex:1">ホーム</button>
@@ -577,6 +567,7 @@ function renderGoalDetail(id) {
 
   if (!isCompleted) {
     document.getElementById("plusBtn").onclick = () => addCount(g.id, 1);
+    document.getElementById("plus5Btn").onclick = () => addCount(g.id, 5);
     document.getElementById("minusBtn").onclick = () => addCount(g.id, -1);
     document.getElementById("backBtn").onclick = () => location.hash = "#/home";
     document.getElementById("deleteBtn").onclick = () => {
