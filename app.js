@@ -142,6 +142,16 @@ function route() {
 }
 window.addEventListener("hashchange", route);
 
+/* -------- ナビ: 同じハッシュでも必ず再描画する -------- */
+function navigate(path) {
+  const target = "#" + path;
+  if (location.hash === target || (target === "#/home" && (!location.hash || location.hash === "#" || location.hash === "#/"))) {
+    route();
+  } else {
+    location.hash = target;
+  }
+}
+
 /* -------- 共通レイアウト -------- */
 function shell(activeTab, content) {
   const app = document.getElementById("app");
@@ -156,9 +166,9 @@ function shell(activeTab, content) {
     </div>
     <div id="content">${content}</div>
   `;
-  document.getElementById("gearBtn").onclick = () => location.hash = "#/settings";
+  document.getElementById("gearBtn").onclick = () => navigate("/settings");
   document.querySelectorAll(".tabs button").forEach(b => {
-    b.onclick = () => location.hash = "#/" + b.dataset.tab;
+    b.onclick = () => navigate("/" + b.dataset.tab);
   });
 }
 
@@ -930,8 +940,8 @@ function showCertificateDialog(g) {
       <div style="width:40px"></div>
     </div>
     ${html}`;
-  document.getElementById("backBtn2").onclick = () => location.hash = "#/home";
-  document.getElementById("backHomeFromCert").onclick = () => location.hash = "#/home";
+  document.getElementById("backBtn2").onclick = () => navigate("/home");
+  document.getElementById("backHomeFromCert").onclick = () => navigate("/home");
   document.getElementById("openCertBtn").onclick = () => window.open(url, "_blank");
   document.getElementById("copyCertBtn").onclick = () => {
     navigator.clipboard?.writeText(url).then(() => {
