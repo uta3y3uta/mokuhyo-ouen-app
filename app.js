@@ -133,6 +133,7 @@ function route() {
     case "home":       renderHome(); break;
     case "create":     renderCreate(); break;
     case "goal":       renderGoalDetail(arg); break;
+    case "records":    renderRecords(arg); break;
     case "collection": renderCollection(); break;
     case "settings":   renderSettings(); break;
     case "gallery":    renderGallery(); break;
@@ -590,10 +591,12 @@ function renderGoalDetail(id) {
     <button class="done-btn" id="doneBtn">できた！</button>
     <div class="card row-flex">
       <button class="ghost-btn" id="backBtn" style="flex:1">ホーム</button>
+      <button class="ghost-btn" id="recordBtn" style="flex:1">きろく</button>
       <button class="ghost-btn" id="deleteBtn" style="flex:1;color:#c4392c">やめる</button>
     </div>` : `
     <div class="card row-flex">
       <button class="ghost-btn" id="backBtn" style="flex:1">ホーム</button>
+      <button class="ghost-btn" id="recordBtn" style="flex:1">きろく</button>
       <button class="primary-btn" id="certBtn" style="flex:2"><ruby>賞状<rt>しょうじょう</rt></ruby>を<ruby>印刷<rt>いんさつ</rt></ruby></button>
     </div>`}
   `;
@@ -610,6 +613,8 @@ function renderGoalDetail(id) {
 
   if (!isCompleted) {
     document.getElementById("backBtn").onclick = () => location.hash = "#/home";
+    const recordBtn = document.getElementById("recordBtn");
+    if (recordBtn) recordBtn.onclick = () => location.hash = "#/records/" + g.id;
     document.getElementById("deleteBtn").onclick = () => {
       showConfirm("この もくひょうを やめますか？(きろくは けされます)", () => {
         state.goals = state.goals.filter(x => x.id !== g.id);
@@ -703,6 +708,8 @@ function renderGoalDetail(id) {
   } else {
     document.getElementById("backBtn").onclick = () => location.hash = "#/home";
     document.getElementById("certBtn").onclick = () => showCertificateDialog(g);
+    const recordBtn = document.getElementById("recordBtn");
+    if (recordBtn) recordBtn.onclick = () => location.hash = "#/records/" + g.id;
   }
 }
 
@@ -767,6 +774,49 @@ function playEvolution(g, newStage) {
       renderGoalDetail(g.id);
     }
   };
+}
+
+/* ============================================================
+   きろく一覧画面
+   ============================================================ */
+function renderRecords(id) {
+  const g = state.goals.find(x => x.id === id) || state.completedGoals.find(x => x.id === id);
+  if (!g) { location.hash = "#/home"; return; }
+  const history = (g.history || []).slice().reverse(); // 新しい順
+  let listHtml = "";
+  if (history.length === 0) {
+    listHtml = `<div class="card" style="text-align:center;padding:36px 18px">
+      <div style="font-size:48px;margin-bottom:14px">📔</div>
+      <p style="font-weight:700;color:var(--primary-dark)">まだ きろくが ないよ</p>
+      <p class="help-text">「できた！」のときに 文章や しゃしんを 入れると ここに のこるよ</p>
+    </div>`;
+  } else {
+    let items = "";
+    history.forEach(h => {
+      const d = new Date(h.ts);
+      const dStr = `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日 ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+      const sign = h.delta > 0 ? "+" : "";
+      items += `<div class="record-item">
+        <div class="record-meta">
+          <span class="record-date">${dStr}</span>
+          ${h.delta !== 0 ? `<span class="record-delta">${sign}${h.delta} ${escapeHtml(g.unit)}</span>` : ""}
+        </div>
+        ${h.text ? `<div class="record-text">${escapeHtml(h.text)}</div>` : ""}
+        ${h.photo ? `<div class="record-photo"><img src="${h.photo}" alt=""></div>` : ""}
+      </div>`;
+    });
+    listHtml = `<div class="card"><div class="record-list">${items}</div></div>`;
+  }
+
+  document.getElementById("app").innerHTML = `
+    <div class="header">
+      <button class="gear-btn" id="backBtn">←</button>
+      <h1 style="flex:1;text-align:center;font-size:18px">きろく：${escapeHtml(g.label)}</h1>
+      <div style="width:40px"></div>
+    </div>
+    ${listHtml}
+  `;
+  document.getElementById("backBtn").onclick = () => location.hash = "#/goal/" + id;
 }
 
 /* ============================================================
@@ -912,6 +962,35 @@ function renderCertificatePage(id) {
   row2 += `<div class="j-cell j-final">${renderCreature(g.eggType, 10)}<div class="j-num j-num-final">10</div></div>`;
   const isDone = state.completedGoals.includes(g);
 
+  // 賞状２枚目以降の記録ページ
+  const history = (g.history || []).slice().sort((a, b) => new Date(a.ts) - new Date(b.ts));
+  const PER_PAGE = 5; // 1枚に5件
+  let recordPages = "";
+  if (history.length > 0) {
+    const totalPages = Math.ceil(history.length / PER_PAGE);
+    for (let p = 0; p < totalPages; p++) {
+      const chunk = history.slice(p * PER_PAGE, (p + 1) * PER_PAGE);
+      const items = chunk.map(h => {
+        const d = new Date(h.ts);
+        const dStr = `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日 ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+        const sign = h.delta > 0 ? "+" : "";
+        return `<div class="cert-record">
+          <div class="cert-record-meta">
+            <span class="cert-record-date">${dStr}</span>
+            ${h.delta !== 0 ? `<span class="cert-record-delta">${sign}${h.delta} ${escapeHtml(g.unit)}</span>` : ""}
+          </div>
+          ${h.text ? `<div class="cert-record-text">${escapeHtml(h.text)}</div>` : ""}
+          ${h.photo ? `<div class="cert-record-photo"><img src="${h.photo}" alt=""></div>` : ""}
+        </div>`;
+      }).join("");
+      recordPages += `<div class="cert-page cert-records-page">
+        <h2 class="cert-records-h2">きろく <small>(${p + 1} / ${totalPages})</small></h2>
+        <div class="cert-records-list">${items}</div>
+        <div class="cert-records-footer">${escapeHtml(g.label)}</div>
+      </div>`;
+    }
+  }
+
   document.body.innerHTML = `
     <button class="cert-print" onclick="window.print()">🖨 印刷する</button>
     <div class="cert-page">
@@ -931,6 +1010,7 @@ function renderCertificatePage(id) {
       </div>
       <div class="cert-date">${todayStr}</div>
     </div>
+    ${recordPages}
   `;
   document.body.style.background = "white";
 }
