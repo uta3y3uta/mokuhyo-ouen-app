@@ -55,7 +55,7 @@ function loadState() {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) return JSON.parse(raw);
   } catch(e) {}
-  return { goals: [], completedGoals: [], settings: { themeColor: 0 } };
+  return { goals: [], completedGoals: [], settings: { themeColor: 10 } };
 }
 function saveState() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
